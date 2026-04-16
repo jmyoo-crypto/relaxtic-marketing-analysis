@@ -1,0 +1,1327 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>메타 광고 × 자사몰 × 스마트스토어 채널 연관성 분석</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3/dist/chartjs-plugin-annotation.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f4f6f9; color: #1a1a2e; line-height: 1.6; }
+
+/* ── 헤더 ── */
+.header { background: linear-gradient(135deg, #1877F2 0%, #0f5bbf 50%, #0a3d8f 100%); padding: 36px 40px 28px; color: #fff; }
+.header-badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 12px; }
+.header h1 { font-size: 26px; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px; }
+.header-meta { font-size: 13px; opacity: 0.82; display: flex; gap: 20px; flex-wrap: wrap; }
+.header-meta span { display: flex; align-items: center; gap: 5px; }
+
+/* ── 공통 레이아웃 ── */
+.container { max-width: 1140px; margin: 0 auto; padding: 32px 20px 60px; }
+.sec-label { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.sec-num { background: #1877F2; color: #fff; border-radius: 6px; padding: 2px 9px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
+.sec-title { font-size: 19px; font-weight: 900; color: #111; margin-bottom: 4px; }
+.sec-sub { font-size: 13px; color: #777; margin-bottom: 24px; line-height: 1.55; }
+.divider { height: 1px; background: #e2e8f0; margin: 36px 0; }
+
+.card { background: #fff; border-radius: 14px; padding: 28px 28px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04); margin-bottom: 20px; }
+.card-sm { background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04); }
+
+/* ── 결론 박스 ── */
+.conclusion-box { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 16px; padding: 30px 32px; color: #fff; margin-bottom: 28px; }
+.conclusion-box .cb-title { font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+.conclusion-box h2 { font-size: 22px; font-weight: 900; color: #f1f5f9; margin-bottom: 20px; letter-spacing: -0.5px; }
+.conclusion-list { display: flex; flex-direction: column; gap: 12px; }
+.cl-item { display: flex; gap: 14px; align-items: flex-start; }
+.cl-num { background: #1877F2; color: #fff; border-radius: 50%; width: 26px; height: 26px; min-width: 26px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; margin-top: 1px; }
+.cl-text { font-size: 14px; color: #e2e8f0; line-height: 1.65; }
+.cl-text b { color: #60a5fa; }
+.cl-text em { color: #34d399; font-style: normal; font-weight: 700; }
+
+/* ── 채널 연관성 4개 큰 카드 ── */
+.relation-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 28px; }
+.rel-card { background: #fff; border-radius: 14px; padding: 22px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04); border-top: 4px solid #ddd; position: relative; overflow: hidden; }
+.rel-card::before { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 0 0 0 100%; opacity: 0.07; }
+.rel-card.r1 { border-top-color: #1877F2; }
+.rel-card.r1::before { background: #1877F2; }
+.rel-card.r2 { border-top-color: #10b981; }
+.rel-card.r2::before { background: #10b981; }
+.rel-card.r3 { border-top-color: #f59e0b; }
+.rel-card.r3::before { background: #f59e0b; }
+.rel-card.r4 { border-top-color: #8b5cf6; }
+.rel-card.r4::before { background: #8b5cf6; }
+.rel-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.rel-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+.ri-blue { background: #dbeafe; }
+.ri-green { background: #d1fae5; }
+.ri-orange { background: #fef3c7; }
+.ri-purple { background: #ede9fe; }
+.rel-card h3 { font-size: 14px; font-weight: 800; color: #111; line-height: 1.3; }
+.rel-card h3 span { font-size: 12px; font-weight: 500; color: #888; display: block; }
+
+.corr-big { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
+.corr-big .val { font-size: 42px; font-weight: 900; line-height: 1; }
+.c-blue { color: #1877F2; }
+.c-green { color: #059669; }
+.c-orange { color: #d97706; }
+.c-purple { color: #7c3aed; }
+.c-red { color: #dc2626; }
+.c-gray { color: #9ca3af; }
+.corr-big .arrow { font-size: 14px; color: #aaa; }
+.corr-big .val2 { font-size: 28px; font-weight: 800; }
+.corr-bar { height: 6px; background: #f1f5f9; border-radius: 3px; margin-bottom: 10px; }
+.corr-bar-inner { height: 100%; border-radius: 3px; transition: width 0.3s; }
+.rel-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; margin-bottom: 10px; }
+.rb-blue { background: #dbeafe; color: #1e40af; }
+.rb-green { background: #d1fae5; color: #065f46; }
+.rb-orange { background: #fef3c7; color: #92400e; }
+.rb-red { background: #fee2e2; color: #991b1b; }
+.rb-purple { background: #ede9fe; color: #5b21b6; }
+.rel-desc { font-size: 12.5px; color: #4b5563; line-height: 1.7; }
+.rel-desc b { color: #1a1a2e; }
+.rel-sub-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.rel-sub-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; flex: 1; min-width: 100px; }
+.rel-sub-item .rs-label { font-size: 10px; color: #888; margin-bottom: 2px; }
+.rel-sub-item .rs-val { font-size: 15px; font-weight: 800; }
+
+/* ── 타임라인 ── */
+.timeline-card { background: #fff; border-radius: 14px; padding: 22px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; }
+.timeline-card h3 { font-size: 15px; font-weight: 800; color: #222; margin-bottom: 16px; }
+.tl-bar { display: flex; border-radius: 10px; overflow: hidden; height: 64px; }
+.tl-seg { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 8px; text-align: center; }
+.tl-seg .tl-date { font-size: 10px; opacity: 0.75; margin-bottom: 2px; }
+.tl-seg .tl-name { font-size: 11px; font-weight: 700; margin-bottom: 2px; }
+.tl-seg .tl-price { font-size: 12px; font-weight: 800; }
+.tl-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: #555; margin-top: 10px; }
+.tl-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+
+/* ── 표 ── */
+.tbl-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th { background: #1e293b; color: #e2e8f0; padding: 11px 13px; text-align: center; font-weight: 600; font-size: 12px; }
+th:first-child { text-align: left; border-radius: 6px 0 0 0; }
+th:last-child { border-radius: 0 6px 0 0; }
+td { padding: 10px 13px; border-bottom: 1px solid #f1f5f9; text-align: center; font-size: 13px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: #f8faff; }
+.td-event { text-align: left; font-weight: 600; }
+.hi { color: #059669; font-weight: 800; }
+.mid { color: #d97706; font-weight: 700; }
+.lo { color: #dc2626; font-weight: 700; }
+.row-best td { background: #f0fdf4; }
+.row-total td { background: #f0f4ff; font-weight: 700; }
+
+/* ── 인사이트 박스 ── */
+.insight { border-radius: 10px; padding: 14px 18px; margin-bottom: 12px; font-size: 13px; line-height: 1.7; }
+.insight-blue { background: #eff6ff; border-left: 4px solid #1877F2; color: #1e40af; }
+.insight-green { background: #f0fdf4; border-left: 4px solid #10b981; color: #065f46; }
+.insight-red { background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; }
+.insight-yellow { background: #fffbeb; border-left: 4px solid #f59e0b; color: #92400e; }
+.insight-purple { background: #faf5ff; border-left: 4px solid #8b5cf6; color: #4c1d95; }
+
+/* ── 해킹 섹션 ── */
+.hack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
+.hack-card { border-radius: 12px; padding: 20px; }
+.hack-before { background: #eff6ff; border: 1.5px solid #bfdbfe; }
+.hack-during { background: #fef2f2; border: 2px solid #fecaca; }
+.hack-after  { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
+.hack-card h4 { font-size: 12px; font-weight: 800; margin-bottom: 12px; }
+.hack-before h4 { color: #1e40af; }
+.hack-during h4 { color: #7f1d1d; }
+.hack-after h4 { color: #14532d; }
+.hack-stat { display: flex; gap: 14px; flex-wrap: wrap; }
+.hs-item { flex-shrink: 0; }
+.hs-val { font-size: 22px; font-weight: 900; line-height: 1.1; }
+.hs-lbl { font-size: 10px; margin-top: 2px; }
+.hack-before .hs-val { color: #1877F2; }
+.hack-during .hs-val { color: #dc2626; }
+.hack-after  .hs-val { color: #059669; }
+.hack-during .hs-val.highlight { color: #059669; font-size: 20px; }
+.hack-note { font-size: 12px; line-height: 1.65; margin-top: 10px; }
+.hack-before .hack-note { color: #1e3a8a; }
+.hack-during .hack-note { color: #7f1d1d; }
+.hack-after .hack-note { color: #14532d; }
+
+/* ── 상관계수 6개 카드 ── */
+.corr6-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
+.corr6-card { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+.corr6-card h4 { font-size: 12px; color: #64748b; margin-bottom: 10px; font-weight: 600; }
+.cv { font-size: 36px; font-weight: 900; line-height: 1; margin-bottom: 6px; }
+.corr6-bar { height: 6px; background: #f1f5f9; border-radius: 3px; margin-bottom: 8px; }
+.clbl { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px; }
+.clbl-strong { background: #dbeafe; color: #1e40af; }
+.clbl-medium { background: #fef3c7; color: #92400e; }
+.clbl-weak { background: #f1f5f9; color: #64748b; }
+.clbl-neg { background: #fee2e2; color: #991b1b; }
+.corr6-card p { font-size: 12px; color: #4b5563; line-height: 1.65; }
+
+/* ── 차트 ── */
+.chart-wrap { position: relative; }
+.chart-note { font-size: 11.5px; color: #64748b; margin-bottom: 12px; display: flex; gap: 16px; flex-wrap: wrap; }
+.cn-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 10px; }
+
+/* ── 낙수 존 배지 ── */
+.zone-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+.zb { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+
+/* ── 월별 그리드 ── */
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+
+/* ── 반응형 ── */
+@media (max-width: 960px) {
+  .relation-grid { grid-template-columns: 1fr; }
+  .two-col { grid-template-columns: 1fr; }
+  .corr6-grid { grid-template-columns: repeat(2, 1fr); }
+  .hack-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 640px) {
+  .corr6-grid { grid-template-columns: 1fr; }
+  .header { padding: 24px 16px 20px; }
+  .container { padding: 20px 14px 40px; }
+  .card { padding: 18px; }
+  table { font-size: 11.5px; }
+  td, th { padding: 8px 8px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ────────── 헤더 ────────── -->
+<div class="header">
+  <div class="header-badge">릴렉스틱 마케팅 데이터 분석</div>
+  <h1>메타 광고 × 자사몰 × 스마트스토어 채널 연관성 분석</h1>
+  <div class="header-meta">
+    <span>📅 2026.01.01 ~ 04.15 · 105일</span>
+    <span>💰 총 메타 광고비 31,515,706원</span>
+    <span>📈 통합 ROAS 2.99배</span>
+    <span>🛒 C24 : SS = 65.6% : 34.4%</span>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ═══════════════════════════════════════
+       SECTION 0: 결론 요약
+  ═══════════════════════════════════════ -->
+  <div class="conclusion-box">
+    <div class="cb-title">CONCLUSION — 분석 결론</div>
+    <h2>이 데이터가 말하는 것</h2>
+    <div class="conclusion-list">
+      <div class="cl-item">
+        <div class="cl-num">1</div>
+        <div class="cl-text"><b>메타 광고는 자사몰(Cafe24)의 직접 드라이버다.</b> 상관계수 r=0.752 — 메타 광고비가 많은 날 자사몰 매출이 즉각 상승한다. 특히 스마트스토어보다 자사몰이 저렴할 때(SS 32,900원 구간) r=0.889까지 올라간다.</div>
+      </div>
+      <div class="cl-item">
+        <div class="cl-num">2</div>
+        <div class="cl-text"><b>메타는 스마트스토어에도 시차(낙수)효과를 만든다.</b> 당일 r=0.345보다 다음날 r=0.441이 높다 — 메타 광고 노출 → 자사몰 비밀랜딩(29,900원) 방문 → 이탈 후 네이버 검색 → <em>다음날 스마트스토어 구매</em> 경로가 작동한다.</div>
+      </div>
+      <div class="cl-item">
+        <div class="cl-num">3</div>
+        <div class="cl-text"><b>자사몰과 스마트스토어는 SS 가격에 따라 경쟁/보완 관계로 전환된다.</b> SS가 비쌀 때(32,900원): C24↑ SS↓ (경쟁, r=-0.261), SS가 저렴할 때(27,900원): SS 매출이 2.1배로 폭등하며 C24도 유지.</div>
+      </div>
+      <div class="cl-item">
+        <div class="cl-num">4</div>
+        <div class="cl-text"><b>SS 가격이 채널 분배의 핵심 변수다.</b> 같은 메타 광고비라도 SS 가격 조건에 따라 어느 채널로 매출이 쏠리는지 완전히 달라진다. <em>최고 효율: 급찐급빠(통합ROAS 3.75배, 가장 낮은 광고비)</em> — 메시지 효율이 광고비를 이겼다.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION A: 인사이트 & 액션 플랜
+  ═══════════════════════════════════════ -->
+  <div style="margin-bottom: 28px;">
+    <!-- 액션 헤더 -->
+    <div style="display:flex; align-items:center; gap:10px; margin-bottom:16px;">
+      <div style="background:#0f172a; color:#fff; border-radius:8px; padding:4px 12px; font-size:11px; font-weight:800; letter-spacing:0.5px;">ACTION PLAN</div>
+      <div style="font-size:19px; font-weight:900; color:#111;">이 데이터로 할 수 있는 것들</div>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:14px;">
+
+      <!-- 즉시 실행 -->
+      <div style="background:#fff; border-radius:14px; padding:22px; box-shadow:0 1px 4px rgba(0,0,0,0.06); border-top:4px solid #059669;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+          <div style="background:#d1fae5; color:#065f46; border-radius:8px; padding:4px 10px; font-size:11px; font-weight:800;">즉시 실행</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:13px; color:#374151; line-height:1.65;">
+          <div style="display:flex; gap:8px;">
+            <span style="color:#059669; font-weight:800; min-width:16px;">①</span>
+            <span><b>네이버 광고비 → 메타로 전환</b><br>네이버 964만원이 C24·SS와 사실상 무관(r=-0.034). 동일 예산을 메타에 투입 시 ROAS 즉각 개선.</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <span style="color:#059669; font-weight:800; min-width:16px;">②</span>
+            <span><b>메타 집행 다음날 SS 매출 모니터링</b><br>전일 메타 집행액으로 익일 SS 매출 예측. lag r=0.441 → 예측 기준값으로 활용.</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <span style="color:#059669; font-weight:800; min-width:16px;">③</span>
+            <span><b>급찐급빠식 메시지 전략 복원</b><br>가장 낮은 광고비(17.4만원/일)로 최고 ROAS(3.75배). 컨셉 메시지 효율이 광고 확대보다 먼저다.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 전략 방향 -->
+      <div style="background:#fff; border-radius:14px; padding:22px; box-shadow:0 1px 4px rgba(0,0,0,0.06); border-top:4px solid #1877F2;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+          <div style="background:#dbeafe; color:#1e40af; border-radius:8px; padding:4px 10px; font-size:11px; font-weight:800;">전략 방향</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:13px; color:#374151; line-height:1.65;">
+          <div style="display:flex; gap:8px;">
+            <span style="color:#1877F2; font-weight:800; min-width:16px;">①</span>
+            <span><b>SS 가격이 자사몰보다 저렴할 때만 메타 확대</b><br>SS 저렴(27,900원)일 때 SS 매출 2.1배. 반대로 SS 비쌀 때는 메타 올려도 SS는 거의 반응 없음.</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <span style="color:#1877F2; font-weight:800; min-width:16px;">②</span>
+            <span><b>명절/시즌 이벤트 + 동일가격 = 낙수 최강</b><br>설날 구간 lag r=0.684 (전 구간 최고). 명절 감성 + 자사몰=SS 가격 조합이 낙수효과 극대화.</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <span style="color:#1877F2; font-weight:800; min-width:16px;">③</span>
+            <span><b>SS 가격 인하 이벤트는 단기 용도로만</b><br>SS 저렴 구간 통합ROAS 2.72배(최저). 매출 볼륨은 늘지만 수익성 하락. 재고 소진·신규 유입 목적으로 한정.</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 데이터 보완 -->
+      <div style="background:#fff; border-radius:14px; padding:22px; box-shadow:0 1px 4px rgba(0,0,0,0.06); border-top:4px solid #f59e0b;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:14px;">
+          <div style="background:#fef3c7; color:#92400e; border-radius:8px; padding:4px 10px; font-size:11px; font-weight:800;">데이터 보완 필요</div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:10px; font-size:13px; color:#374151; line-height:1.65;">
+          <div style="display:flex; gap:8px;">
+            <span style="color:#d97706; font-weight:800; min-width:16px;">①</span>
+            <span><b>메타 광고 소재별 성과</b><br>지금은 "메타 전체"만 보임. 어떤 소재가 낙수효과를 만드는지 모름. 소재별 C24/SS 전환률 필요.</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <span style="color:#d97706; font-weight:800; min-width:16px;">②</span>
+            <span><b>SS 상품별 매출 분리</b><br>릴렉스틱 vs 릴렉스틱볼 분리 필요. 낙수효과로 유입된 고객이 어느 상품을 사는지 알아야 함.</span>
+          </div>
+          <div style="display:flex; gap:8px;">
+            <span style="color:#d97706; font-weight:800; min-width:16px;">③</span>
+            <span><b>네이버 브랜드 검색량</b><br>낙수효과의 중간 경로(메타 → 네이버 자연검색 → SS)를 검증하려면 검색량 데이터 필수. 네이버 서치어드바이저에서 확인 가능.</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 1: 채널 연관성 분석 (4가지)
+  ═══════════════════════════════════════ -->
+  <div class="sec-label">
+    <span class="sec-num">SECTION 01</span>
+  </div>
+  <div class="sec-title">채널 간 연관성 분석</div>
+  <div class="sec-sub">분석 목적: 메타 광고가 자사몰과 스마트스토어에 각각 어떻게 영향을 주는지, 그리고 두 판매 채널이 서로 어떤 관계인지 파악</div>
+
+  <div class="relation-grid">
+    <!-- ① 메타 vs C24 -->
+    <div class="rel-card r1">
+      <div class="rel-card-header">
+        <div class="rel-icon ri-blue">📱</div>
+        <h3>① 메타 광고 → 자사몰(Cafe24)<span>직접 전환 관계</span></h3>
+      </div>
+      <div class="corr-big">
+        <div class="val c-blue">0.752</div>
+        <div class="arrow">당일</div>
+        <div class="val2 c-blue" style="font-size:20px; opacity:0.65;">r=0.627 다음날</div>
+      </div>
+      <div class="corr-bar"><div class="corr-bar-inner" style="width:75.2%; background:#1877F2;"></div></div>
+      <span class="rel-badge rb-blue">강한 양의 상관 (0.7 이상)</span>
+      <div class="rel-desc">
+        메타 광고비를 많이 쓴 날, <b>자사몰 매출도 그날 즉각 상승</b>한다. 메타 광고 → 자사몰 비밀랜딩(29,900원) → 당일 구매로 이어지는 직접 전환 경로가 명확하다.<br><br>
+        <b>가격 조건에 따른 변화:</b> SS가 자사몰보다 비쌀 때(32,900원) r=0.889로 극대화 — 유저가 SS 대신 자사몰에서 바로 구매하기 때문.
+      </div>
+      <div class="rel-sub-row">
+        <div class="rel-sub-item">
+          <div class="rs-label">SS 동일(29,900) 구간</div>
+          <div class="rs-val c-blue">r = 0.524</div>
+        </div>
+        <div class="rel-sub-item">
+          <div class="rs-label">SS 비쌈(32,900) 구간</div>
+          <div class="rs-val" style="color:#dc2626;">r = 0.889</div>
+        </div>
+        <div class="rel-sub-item">
+          <div class="rs-label">SS 저렴(27,900) 구간</div>
+          <div class="rs-val c-gray">r = 0.282</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 메타 vs SS -->
+    <div class="rel-card r2">
+      <div class="rel-card-header">
+        <div class="rel-icon ri-green">🌊</div>
+        <h3>② 메타 광고 → 스마트스토어(SS)<span>시차 낙수효과 관계</span></h3>
+      </div>
+      <div class="corr-big">
+        <div class="val c-green">0.345</div>
+        <div class="arrow" style="font-size:20px; color:#10b981;">→</div>
+        <div class="val2 c-green">0.441</div>
+        <div class="arrow" style="color:#10b981; font-size:11px; align-self:center;">다음날↑</div>
+      </div>
+      <div class="corr-bar"><div class="corr-bar-inner" style="width:44.1%; background:#10b981;"></div></div>
+      <span class="rel-badge rb-green">낙수효과 확인 — 다음날이 더 강함</span>
+      <div class="rel-desc">
+        당일(0.345)보다 <b>다음날(0.441)이 더 강한 상관</b> — 낙수효과의 핵심 증거다.<br>
+        경로: 메타 광고 노출 → 자사몰 비밀랜딩(검색 불가) → 이탈 후 네이버 검색 → <b>다음날 스마트스토어 구매</b><br><br>
+        <b>가격이 결정적 변수:</b> SS 저렴(27,900원)일 때 SS 일평균 <b>577,131원</b> — 동일가격 구간 271,016원의 2.1배.
+      </div>
+      <div class="rel-sub-row">
+        <div class="rel-sub-item">
+          <div class="rs-label">SS 동일(29,900) — 낙수 r</div>
+          <div class="rs-val c-green">0.396</div>
+        </div>
+        <div class="rel-sub-item">
+          <div class="rs-label">SS 비쌈(32,900) — 낙수 r</div>
+          <div class="rs-val c-red">-0.124</div>
+        </div>
+        <div class="rel-sub-item">
+          <div class="rs-label">SS 저렴(27,900) 일평균</div>
+          <div class="rs-val c-green" style="font-size:13px;">577,131원</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ③ C24 vs SS -->
+    <div class="rel-card r3">
+      <div class="rel-card-header">
+        <div class="rel-icon ri-orange">⚖️</div>
+        <h3>③ 자사몰(C24) ↔ 스마트스토어(SS)<span>가격에 따라 경쟁 ↔ 보완 전환</span></h3>
+      </div>
+      <div class="corr-big">
+        <div class="val c-orange">0.272</div>
+        <div class="arrow">전체 당일</div>
+      </div>
+      <div class="corr-bar"><div class="corr-bar-inner" style="width:27.2%; background:#f59e0b;"></div></div>
+      <span class="rel-badge rb-orange">약한 양의 상관 — 가격에 따라 방향 반전</span>
+      <div class="rel-desc">
+        전체 기간 r=0.272(약한 양의)이지만, <b>가격 조건에 따라 관계가 완전히 달라진다.</b><br><br>
+        • SS 비쌈(32,900원): r=<b style="color:#dc2626;">-0.261</b> → C24 오르면 SS 하락 (경쟁 관계)<br>
+        • SS 동일(29,900원): r=0.185 → 약한 양의 (분산 관계)<br>
+        • SS 저렴(27,900원): r=0.184 → 약한 양의 (보완 관계)
+      </div>
+      <div class="rel-sub-row">
+        <div class="rel-sub-item">
+          <div class="rs-label">SS 비쌈 구간 r</div>
+          <div class="rs-val c-red">-0.261</div>
+        </div>
+        <div class="rel-sub-item">
+          <div class="rs-label">SS 동일 구간 r</div>
+          <div class="rs-val c-orange">+0.185</div>
+        </div>
+        <div class="rel-sub-item">
+          <div class="rs-label">SS 저렴 구간 r</div>
+          <div class="rs-val c-green">+0.184</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ④ 3채널 통합 -->
+    <div class="rel-card r4">
+      <div class="rel-card-header">
+        <div class="rel-icon ri-purple">🔗</div>
+        <h3>④ 메타 + C24 + SS 3채널 통합 구조<span>메타가 허브, SS 가격이 분배 스위치</span></h3>
+      </div>
+      <div style="margin-bottom: 14px; padding: 14px; background: #faf5ff; border-radius: 10px; font-size: 13px; color: #4c1d95; line-height: 1.7;">
+        <b>메타 광고</b> → <b>자사몰 즉시 전환(r=0.752)</b> + <b>SS 다음날 낙수(r=0.441)</b><br>
+        <span style="font-size: 12px; color: #6d28d9;">SS 가격에 따라 두 채널로의 분배 비율이 결정됨</span>
+      </div>
+      <div class="rel-desc">
+        <b>가격에 따른 3채널 흐름:</b><br>
+        • SS 동일(29,900원): C24 65% / SS 35% — 균형 분배<br>
+        • SS 비쌈(32,900원): <b>C24 72.1%</b> 집중 — 자사몰 쏠림<br>
+        • SS 저렴(27,900원): C24 64.9% / <b>SS 35.1% + 절대량 2배</b><br><br>
+        <b>최적 시나리오:</b> 급찐급빠 컨셉(17.4만원/일) → 통합 ROAS <b>3.75배</b><br>
+        메시지 효율 &gt; 광고비 규모
+      </div>
+      <div class="rel-sub-row">
+        <div class="rel-sub-item">
+          <div class="rs-label">최고 통합 ROAS</div>
+          <div class="rs-val" style="color:#7c3aed;">3.75배</div>
+        </div>
+        <div class="rel-sub-item">
+          <div class="rs-label">최저 통합 ROAS</div>
+          <div class="rs-val c-red">2.72배</div>
+        </div>
+        <div class="rel-sub-item">
+          <div class="rs-label">전체 통합 ROAS</div>
+          <div class="rs-val c-orange">2.99배</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ⑤ 네이버 광고 — 전체 너비 카드 -->
+  <div class="card" style="border-left: 5px solid #9ca3af; margin-top: 4px;">
+    <div style="display: grid; grid-template-columns: 1fr 2fr; gap: 24px; align-items: start;">
+      <!-- 왼쪽: 핵심 수치 -->
+      <div>
+        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 14px;">
+          <div style="width:36px; height:36px; background:#f1f5f9; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:18px;">🟢</div>
+          <div>
+            <div style="font-size: 14px; font-weight: 800; color: #111;">⑤ 네이버 광고 vs C24 · SS</div>
+            <div style="font-size: 12px; color: #888;">총 9,640,352원 · 메타 대비 30.6%</div>
+          </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px;">
+          <div style="background: #f8fafc; border-radius: 10px; padding: 12px 14px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 10px; color: #888; margin-bottom: 3px;">네이버 vs C24 당일 r</div>
+            <div style="font-size: 26px; font-weight: 900; color: #94a3b8;">0.104</div>
+            <div style="font-size: 10px; color: #94a3b8;">cf. 메타 r=0.752</div>
+          </div>
+          <div style="background: #f8fafc; border-radius: 10px; padding: 12px 14px; border: 1px solid #e2e8f0;">
+            <div style="font-size: 10px; color: #888; margin-bottom: 3px;">네이버 vs SS 당일 r</div>
+            <div style="font-size: 26px; font-weight: 900; color: #ef4444;">-0.034</div>
+            <div style="font-size: 10px; color: #ef4444;">사실상 무관</div>
+          </div>
+        </div>
+        <!-- 월별 네이버 광고비 추이 -->
+        <div style="font-size: 12px; color: #555; line-height: 1.9;">
+          <div style="font-weight: 700; color: #333; margin-bottom: 4px; font-size: 12px;">월별 네이버 광고비 추이</div>
+          <div style="display:flex; flex-direction:column; gap:4px;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>1월</span>
+              <div style="flex:1; margin:0 8px; background:#e2e8f0; border-radius:3px; height:6px; overflow:hidden;">
+                <div style="width:32%; height:100%; background:#94a3b8; border-radius:3px;"></div>
+              </div>
+              <span style="font-weight:700; color:#555; min-width:70px; text-align:right;">49,633원/일</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>2월</span>
+              <div style="flex:1; margin:0 8px; background:#e2e8f0; border-radius:3px; height:6px; overflow:hidden;">
+                <div style="width:52%; height:100%; background:#94a3b8; border-radius:3px;"></div>
+              </div>
+              <span style="font-weight:700; color:#555; min-width:70px; text-align:right;">80,632원/일</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="color:#dc2626; font-weight:700;">3월 ▲최고</span>
+              <div style="flex:1; margin:0 8px; background:#e2e8f0; border-radius:3px; height:6px; overflow:hidden;">
+                <div style="width:100%; height:100%; background:#f87171; border-radius:3px;"></div>
+              </div>
+              <span style="font-weight:700; color:#dc2626; min-width:70px; text-align:right;">153,999원/일</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span>4월(1~15)</span>
+              <div style="flex:1; margin:0 8px; background:#e2e8f0; border-radius:3px; height:6px; overflow:hidden;">
+                <div style="width:46%; height:100%; background:#94a3b8; border-radius:3px;"></div>
+              </div>
+              <span style="font-weight:700; color:#555; min-width:70px; text-align:right;">71,337원/일</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 오른쪽: 인사이트 -->
+      <div>
+        <div style="font-size: 14px; font-weight: 800; color: #111; margin-bottom: 12px;">핵심 발견: 네이버 광고비와 SS 매출은 무관하다</div>
+        <div class="insight insight-yellow" style="margin-bottom: 10px;">
+          <b>3월에 네이버 광고비를 최고로 올렸을 때(153,999원/일) SS 일평균 278,196원이었다.</b><br>
+          4월에 네이버를 71,337원/일로 줄이고 메타를 600,516원/일로 올리자 SS 일평균 <b>457,994원으로 오히려 64% 상승.</b>
+        </div>
+        <div class="insight insight-blue" style="margin-bottom: 10px;">
+          <b>낙수효과의 "네이버"는 광고가 아니라 자연 검색이다.</b><br>
+          메타 광고 → 비밀랜딩 → 이탈 → <b>네이버 자연검색</b> → SS 구매 경로에서 작동하는 것은 <b>네이버 유료 광고(r=-0.034)가 아니라 메타가 만든 브랜드 인지 → 자연검색 행동</b>이다.
+        </div>
+        <div class="insight insight-purple" style="margin-bottom: 0;">
+          <b>결론: 네이버 광고 964만원의 효율은 메타 대비 매우 낮다.</b> 네이버 vs C24 r=0.104, 네이버 vs SS r=-0.034 — 두 채널 모두에서 사실상 연관성이 없다. 반면 메타 vs C24 r=0.752, 메타 vs SS lag r=0.441. <b>동일 예산을 메타에 투입 시 더 높은 효율 기대 가능.</b>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 2: 이벤트 × 가격 타임라인
+  ═══════════════════════════════════════ -->
+  <div class="sec-label">
+    <span class="sec-num">SECTION 02</span>
+  </div>
+  <div class="sec-title">이벤트 × 가격 타임라인</div>
+  <div class="sec-sub">자사몰 메타 랜딩은 항상 29,900원 고정 · SS 가격만 3단계로 변동</div>
+
+  <div class="timeline-card">
+    <h3>2026년 1월 ~ 4월 이벤트 × 가격 구조</h3>
+    <div class="tl-bar">
+      <div class="tl-seg" style="flex:2.6; background:#dbeafe; color:#1e3a8a;">
+        <div class="tl-date">1/1 ~ 3/9 · 68일</div>
+        <div class="tl-name">새해 → 신제품 → 설날 → 급찐급빠</div>
+        <div class="tl-price">SS = 자사몰 = 29,900원</div>
+      </div>
+      <div style="flex:0.02; background:#94a3b8;"></div>
+      <div class="tl-seg" style="flex:1.05; background:#fee2e2; color:#7f1d1d; position:relative;">
+        <div class="tl-date">3/10 ~ 4/5 · 27일</div>
+        <div class="tl-name">이벤트 없음 <span style="font-size:10px;color:#dc2626;">/ 3/26~3/30 해킹중단</span></div>
+        <div class="tl-price">SS 32,900 &gt; 자사몰 29,900원</div>
+      </div>
+      <div style="flex:0.02; background:#94a3b8;"></div>
+      <div class="tl-seg" style="flex:0.36; background:#dcfce7; color:#14532d;">
+        <div class="tl-date">4/6 ~ 4/15 · 10일</div>
+        <div class="tl-name">생일파티</div>
+        <div class="tl-price">SS 27,900 &lt; 자사몰</div>
+      </div>
+    </div>
+    <div class="tl-legend">
+      <span><span class="tl-dot" style="background:#93c5fd;"></span>SS 동일가격(29,900원) — 68일</span>
+      <span><span class="tl-dot" style="background:#fca5a5;"></span>SS 비쌈(32,900원) — 27일</span>
+      <span><span class="tl-dot" style="background:#86efac;"></span>SS 저렴(27,900원) — 10일</span>
+      <span style="color:#dc2626; font-weight:700;"><span class="tl-dot" style="background:#dc2626;"></span>해킹 광고 중단(3/26~3/30) — 5일</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 3: 이벤트별 성과 분석
+  ═══════════════════════════════════════ -->
+  <div class="sec-label">
+    <span class="sec-num">SECTION 03</span>
+  </div>
+  <div class="sec-title">이벤트별 성과 분석</div>
+  <div class="sec-sub">6개 이벤트 구간 × ROAS · 채널 비중 · 채널 간 상관계수 비교</div>
+
+  <div class="card">
+    <div class="tbl-wrap" style="margin-bottom:24px;">
+      <table>
+        <tr>
+          <th class="td-event">이벤트</th>
+          <th>기간</th>
+          <th>일수</th>
+          <th>SS 가격</th>
+          <th>메타 일평균</th>
+          <th>C24 일평균</th>
+          <th>SS 일평균</th>
+          <th>C24 ROAS</th>
+          <th>통합 ROAS</th>
+          <th>C24 비중</th>
+          <th>SS 비중</th>
+          <th>메타vsSS<br>당일r</th>
+          <th>메타vsSS<br>lag r</th>
+        </tr>
+        <tr>
+          <td class="td-event">새해 이벤트</td>
+          <td>1/1~1/18</td><td>18</td><td>29,900</td>
+          <td>285,551</td><td>449,278</td><td>377,066</td>
+          <td class="mid">1.57배</td><td class="mid">2.89배</td>
+          <td>54.4%</td><td>45.6%</td><td>0.321</td><td>0.228</td>
+        </tr>
+        <tr>
+          <td class="td-event">신제품 이벤트</td>
+          <td>1/19~2/2</td><td>15</td><td>29,900</td>
+          <td>356,518</td><td>585,330</td><td>237,813</td>
+          <td class="mid">1.64배</td><td class="mid">2.31배</td>
+          <td>71.1%</td><td>28.9%</td><td>0.331</td><td>0.234</td>
+        </tr>
+        <tr>
+          <td class="td-event">설날 이벤트</td>
+          <td>2/3~2/23</td><td>21</td><td>29,900</td>
+          <td>196,097</td><td>317,399</td><td>247,361</td>
+          <td class="mid">1.62배</td><td class="mid">2.88배</td>
+          <td>56.2%</td><td>43.8%</td><td>0.505</td><td>0.684</td>
+        </tr>
+        <tr class="row-best">
+          <td class="td-event" style="color:#059669; font-weight:800;">급찐급빠 컨셉 ★</td>
+          <td>2/24~3/9</td><td>14</td><td>29,900</td>
+          <td>174,292</td><td>448,265</td><td>205,721</td>
+          <td class="hi">2.57배</td><td class="hi">3.75배</td>
+          <td>68.5%</td><td>31.5%</td><td>0.049</td><td>0.331</td>
+        </tr>
+        <tr>
+          <td class="td-event">이벤트 없음</td>
+          <td>3/10~4/5</td><td>27</td>
+          <td style="color:#dc2626; font-weight:700;">32,900</td>
+          <td>311,914</td><td>786,574</td><td>304,200</td>
+          <td class="hi">2.52배</td><td class="hi">3.50배</td>
+          <td>72.1%</td><td>27.9%</td>
+          <td style="color:#dc2626;">-0.335</td><td style="color:#dc2626;">-0.124</td>
+        </tr>
+        <tr>
+          <td class="td-event">생일파티</td>
+          <td>4/6~4/15</td><td>10</td>
+          <td style="color:#059669; font-weight:700;">27,900</td>
+          <td>604,818</td><td>1,066,945</td><td>577,131</td>
+          <td class="lo">1.76배</td><td class="lo">2.72배</td>
+          <td>64.9%</td><td>35.1%</td>
+          <td style="color:#dc2626;">-0.598</td><td style="color:#dc2626;">-0.429</td>
+        </tr>
+        <tr class="row-total">
+          <td class="td-event">전체 평균</td>
+          <td>1/1~4/15</td><td>105</td><td>—</td>
+          <td>300,150</td><td>587,762</td><td>308,703</td>
+          <td class="mid">1.96배</td><td class="hi">2.99배</td>
+          <td>65.6%</td><td>34.4%</td><td>0.345</td><td>0.441</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px;">
+      <div>
+        <div style="font-size:13px; font-weight:800; color:#222; margin-bottom:3px;">이벤트별 ROAS 비교 (C24 vs 통합)</div>
+        <div style="font-size:11.5px; color:#888; margin-bottom:10px;">급찐급빠 컨셉 — 가장 낮은 광고비로 전 구간 1위</div>
+        <div class="chart-wrap" style="height:270px;"><canvas id="chartRoas"></canvas></div>
+      </div>
+      <div>
+        <div style="font-size:13px; font-weight:800; color:#222; margin-bottom:3px;">이벤트별 채널 매출 배분 (C24% vs SS%)</div>
+        <div style="font-size:11.5px; color:#888; margin-bottom:10px;">SS 비쌈 구간에서 C24 72.1% — 자사몰 집중 현상</div>
+        <div class="chart-wrap" style="height:270px;"><canvas id="chartShare"></canvas></div>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;">
+      <div class="insight insight-blue">
+        <b>급찐급빠 컨셉 (2/24~3/9)이 왜 최고인가?</b> 메타 일평균 174,292원(전 구간 최저)에도 통합 ROAS 3.75배 달성. 광고비가 낮아 variance가 높고, 컨셉 메시지 효율이 광고비를 이겼다. 가격 조건(SS=자사몰)도 이상적이었다.
+      </div>
+      <div class="insight insight-red">
+        <b>생일파티 (4/6~4/15)가 ROAS 최저인 이유:</b> 메타 604,818원/일(최고)을 쏟았지만 통합 ROAS 2.72배(최저). SS를 27,900원으로 낮추면서 SS 매출 절대량은 늘었지만, 가격 인하분만큼 ROAS가 희석됨. 광고비 대규모 집행 + 가격 할인의 이중 ROAS 압박.
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 4: 가격 구간별 상관계수
+  ═══════════════════════════════════════ -->
+  <div class="sec-label">
+    <span class="sec-num">SECTION 04</span>
+  </div>
+  <div class="sec-title">가격 구간별 상관계수 변화</div>
+  <div class="sec-sub">SS 가격 조건이 채널 간 연관성을 어떻게 바꾸는지 — 핵심 인사이트</div>
+
+  <div class="card" style="border-left: 4px solid #1877F2;">
+    <div class="tbl-wrap" style="margin-bottom:24px;">
+      <table>
+        <tr>
+          <th>가격 구간</th>
+          <th>일수</th>
+          <th>메타 vs C24</th>
+          <th>메타 vs C24 lag</th>
+          <th>메타 vs SS</th>
+          <th>메타 vs SS lag</th>
+          <th>C24 vs SS</th>
+          <th>C24 vs SS lag</th>
+          <th>SS 일평균</th>
+        </tr>
+        <tr style="background:#eff6ff;">
+          <td class="td-event" style="color:#1e3a8a;">SS = 자사몰 29,900원</td>
+          <td>68</td>
+          <td>0.524</td><td>0.433</td>
+          <td>0.368</td><td>0.396</td>
+          <td>0.185</td><td>0.217</td>
+          <td>271,016원</td>
+        </tr>
+        <tr style="background:#fef2f2;">
+          <td class="td-event" style="color:#dc2626; font-weight:800;">SS 비쌈 32,900원</td>
+          <td>27</td>
+          <td style="color:#1877F2; font-weight:900; font-size:15px;">0.889</td><td>0.584</td>
+          <td style="color:#dc2626; font-weight:700;">-0.335</td><td style="color:#dc2626;">-0.124</td>
+          <td style="color:#dc2626; font-weight:700;">-0.261</td><td>-0.106</td>
+          <td>304,200원</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td class="td-event" style="color:#059669; font-weight:800;">SS 저렴 27,900원</td>
+          <td>10</td>
+          <td>0.282</td><td>0.360</td>
+          <td style="color:#dc2626; font-weight:700;">-0.598</td><td style="color:#dc2626;">-0.429</td>
+          <td>0.184</td><td style="color:#dc2626;">-0.282</td>
+          <td style="color:#059669; font-weight:900; font-size:15px;">577,131원</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="margin-bottom:20px;">
+      <div style="font-size:13px; font-weight:800; color:#222; margin-bottom:3px;">가격 구간별 4개 상관계수 변화</div>
+      <div style="font-size:11.5px; color:#888; margin-bottom:10px;">SS 비쌈 → 메타-C24 r=0.889 / SS 저렴 → 메타-SS 음수로 반전 패턴</div>
+      <div class="chart-wrap" style="height:280px;"><canvas id="chartCorr"></canvas></div>
+    </div>
+
+    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+      <div class="insight insight-blue" style="margin-bottom:0;">
+        <b>SS 비쌈(32,900원)일 때</b><br>메타→C24 r=<b>0.889</b> (역설적 최강)<br>메타→SS r=-0.335 (이탈 없음)<br>C24↑ SS↓ 경쟁 구조 확인
+      </div>
+      <div class="insight insight-green" style="margin-bottom:0;">
+        <b>SS 동일(29,900원)일 때</b><br>메타→C24 r=0.524, 메타→SS r=0.368<br>낙수 lag r=0.396 작동<br>두 채널 균형 분배
+      </div>
+      <div class="insight insight-yellow" style="margin-bottom:0;">
+        <b>SS 저렴(27,900원)일 때</b><br>SS 일평균 577,131원 (2.1배)<br>메타 균일하게 높아 r 낮지만<br>SS 절대 매출 최고
+      </div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 5: 시차 낙수효과 분석
+  ═══════════════════════════════════════ -->
+  <div class="sec-label">
+    <span class="sec-num">SECTION 05</span>
+  </div>
+  <div class="sec-title">시차 낙수효과 분석</div>
+  <div class="sec-sub">메타 광고비(당일) vs 스마트스토어 매출(다음날) · 전체 105일</div>
+
+  <div class="card" style="border-left: 4px solid #10b981;">
+    <div class="chart-note">
+      <div class="cn-item"><b style="color:#1877F2;">막대</b> = 당일 메타 광고비</div>
+      <div class="cn-item"><b style="color:#10b981;">선</b> = 다음날 SS 매출</div>
+      <div class="cn-item" style="border-color:#fecaca; color:#991b1b;"><b>빨간 박스</b> = 해킹 중단 3/26~3/30</div>
+      <div class="cn-item" style="border-color:#fde68a; color:#92400e;"><b>노란 박스</b> = SS 32,900원 구간</div>
+    </div>
+    <div class="chart-wrap" style="height:340px;"><canvas id="chartLagFull"></canvas></div>
+
+    <div style="margin-top:18px; display:grid; grid-template-columns:repeat(2,1fr); gap:12px;">
+
+      <!-- 구간 ① -->
+      <div style="border-radius:12px; background:#fffbeb; border:1.5px solid #f59e0b; padding:16px 18px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+          <div style="font-weight:900; color:#92400e; font-size:14px;">① 1/14~1/19</div>
+          <span style="background:#fef3c7; color:#92400e; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px;">새해 이벤트 → 신제품 이벤트 전환</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:10px;">
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">이벤트</div>
+            <div style="font-weight:700; color:#374151;">새해(1/1~1/18)</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">SS 가격</div>
+            <div style="font-weight:700; color:#374151;">29,900원 (동일)</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">메타 → 다음날 SS</div>
+            <div style="font-weight:700; color:#d97706;">37~58만 → 32~67만</div>
+          </div>
+        </div>
+        <div style="font-size:12px; color:#374151; line-height:1.7; margin-bottom:6px;">
+          <b>왜 확인됐는가:</b> 새해 이벤트 후반부 메타 집행 증가(40만원대 이상)되면서 낙수패턴 등장. 가격 동일 조건이어서 네이버 검색 후 SS 구매 유인이 존재했음.
+        </div>
+        <div style="background:rgba(245,158,11,0.12); border-radius:6px; padding:8px 10px; font-size:12px; color:#92400e; line-height:1.6;">
+          <b>인사이트:</b> 새해 초반엔 낙수가 약했다가 중후반 메타 강화 시 낙수 확인. <b>이벤트 초반보다 중반 이후 메타 집행 강화가 낙수 효율이 높다.</b>
+        </div>
+      </div>
+
+      <!-- 구간 ② -->
+      <div style="border-radius:12px; background:#faf5ff; border:1.5px solid #c084fc; padding:16px 18px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+          <div style="font-weight:900; color:#5b21b6; font-size:14px;">② 2/5~2/9</div>
+          <span style="background:#ede9fe; color:#5b21b6; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px;">설날 이벤트 — 낙수효과 전 구간 최강</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:10px;">
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">이벤트</div>
+            <div style="font-weight:700; color:#374151;">설날(2/3~2/23)</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">SS 가격</div>
+            <div style="font-weight:700; color:#374151;">29,900원 (동일)</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">구간 lag r</div>
+            <div style="font-weight:900; color:#7c3aed;">0.684 (최고)</div>
+          </div>
+        </div>
+        <div style="font-size:12px; color:#374151; line-height:1.7; margin-bottom:6px;">
+          <b>왜 확인됐는가:</b> 설날 구간 전체 lag r=0.684 — 6개 이벤트 중 단연 최고. 명절 선물 수요 + 설날 감성 메시지 + 자사몰=SS 동일가격이 맞물려 이탈 후 네이버 자연검색 → SS 구매 행동이 가장 강하게 나타남.
+        </div>
+        <div style="background:rgba(139,92,246,0.1); border-radius:6px; padding:8px 10px; font-size:12px; color:#5b21b6; line-height:1.6;">
+          <b>인사이트:</b> <b>명절·시즌 이벤트가 낙수효과를 극대화한다.</b> 설날처럼 선물 수요가 있을 때 메타 집행하면 즉각 C24 전환 + 다음날 SS 낙수 이중 효과. 추석/크리스마스에도 동일 패턴 기대 가능.
+        </div>
+      </div>
+
+      <!-- 구간 ③ -->
+      <div style="border-radius:12px; background:#ecfdf5; border:1.5px solid #6ee7b7; padding:16px 18px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+          <div style="font-weight:900; color:#065f46; font-size:14px;">③ 3/24~3/26</div>
+          <span style="background:#d1fae5; color:#065f46; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px;">이벤트 없음, SS 비쌈(32,900원) — 예외 케이스</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:10px;">
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">이벤트</div>
+            <div style="font-weight:700; color:#dc2626;">이벤트 없음</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">SS 가격</div>
+            <div style="font-weight:700; color:#dc2626;">32,900원 (비쌈)</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">3/25 메타 → SS</div>
+            <div style="font-weight:700; color:#065f46;">70만원 → 67.5만원</div>
+          </div>
+        </div>
+        <div style="font-size:12px; color:#374151; line-height:1.7; margin-bottom:6px;">
+          <b>왜 확인됐는가:</b> SS 비쌈 구간임에도 3/25 메타 701,525원(3월 평균의 3배) 극단 집행으로 가격 장벽을 압도. 해킹 직전 마지막 집행이었고, 다음날(3/26) SS 675,500원으로 구간 최고. 단, 이후 해킹으로 광고 중단.
+        </div>
+        <div style="background:rgba(16,185,129,0.1); border-radius:6px; padding:8px 10px; font-size:12px; color:#065f46; line-height:1.6;">
+          <b>인사이트:</b> SS가 비싸도 <b>메타를 평소의 3배 이상 집행하면 낙수 가능</b>. 하지만 70만원 필요 — 비효율적. 같은 효과를 가격 조건 맞춰 30~40만원으로 얻을 수 있다. <b>극단 집행보다 조건 최적화가 먼저.</b>
+        </div>
+      </div>
+
+      <!-- 구간 ④ -->
+      <div style="border-radius:12px; background:#f0fdf4; border:2px solid #4ade80; padding:16px 18px;">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
+          <div style="font-weight:900; color:#14532d; font-size:14px;">④ 4/6~4/14</div>
+          <span style="background:#dcfce7; color:#14532d; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px;">생일파티 — SS 저렴(27,900원) + SS 폭등</span>
+        </div>
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:6px; margin-bottom:10px;">
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">이벤트</div>
+            <div style="font-weight:700; color:#059669;">생일파티(4/6~4/15)</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">SS 가격</div>
+            <div style="font-weight:700; color:#059669;">27,900원 (저렴)</div>
+          </div>
+          <div style="background:rgba(255,255,255,0.7); border-radius:6px; padding:6px 8px; font-size:11px;">
+            <div style="color:#888; margin-bottom:1px;">SS 일평균</div>
+            <div style="font-weight:900; color:#059669;">577,131원 (2.1배↑)</div>
+          </div>
+        </div>
+        <div style="font-size:12px; color:#374151; line-height:1.7; margin-bottom:6px;">
+          <b>왜 확인됐는가:</b> 자사몰(29,900원)보다 SS(27,900원)가 처음으로 저렴해진 구간. 메타 60만원/일 + SS 가격 우위 → 비밀랜딩 이탈 후 네이버 검색했을 때 SS가 더 싸니까 SS에서 구매. SS 낙수가 이전 구간 대비 압도적.
+        </div>
+        <div style="background:rgba(74,222,128,0.15); border-radius:6px; padding:8px 10px; font-size:12px; color:#14532d; line-height:1.6;">
+          <b>인사이트:</b> <b>SS 가격이 자사몰보다 저렴할 때 낙수효과가 실질 매출로 전환되는 확률이 가장 높다.</b> 단, 이 구간 통합ROAS는 2.72배(최저) — 저가 이벤트로 매출 볼륨을 늘리되 수익성 트레이드오프를 인식해야 함.
+        </div>
+      </div>
+
+    </div>
+
+    <!-- 반례 박스 -->
+    <div style="margin-top:12px; background:#fef2f2; border:1.5px dashed #f87171; border-radius:10px; padding:14px 18px; font-size:12px; color:#991b1b; line-height:1.7;">
+      <b>반례 — 4/1~4/5 (SS 비쌈 32,900원, 이벤트 없음): 메타 57~73만원인데 SS 178~254만원으로 낮음</b><br>
+      이유: SS 32,900원으로 자사몰보다 비싼 상태 + 이벤트 없음 → 네이버 검색 후에도 SS 구매 유인 없음. C24로 집중됨 (C24 일평균 123만원). 메타 많이 써도 SS 낙수는 발생하지 않는 조건임.
+    </div>
+  </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 6: 해킹 이슈
+  ═══════════════════════════════════════ -->
+  <div class="sec-label">
+    <span class="sec-num">SECTION 06</span>
+  </div>
+  <div class="sec-title">해킹 이슈 영향 분석</div>
+  <div class="sec-sub">3/26~3/30 메타 계정 해킹으로 광고 강제 중단 — 전후 3구간 비교</div>
+
+  <div class="card">
+    <div class="hack-grid">
+      <div class="hack-card hack-before">
+        <h4>해킹 전 (3/10~3/25) · 16일</h4>
+        <div class="hack-stat">
+          <div class="hs-item"><div class="hs-val">285,682</div><div class="hs-lbl" style="color:#1877F2;">메타 일평균</div></div>
+          <div class="hs-item"><div class="hs-val" style="color:#059669;">758,419</div><div class="hs-lbl" style="color:#059669;">C24 일평균</div></div>
+          <div class="hs-item"><div class="hs-val" style="color:#d97706;">281,606</div><div class="hs-lbl" style="color:#d97706;">SS 일평균</div></div>
+        </div>
+        <div class="hack-note">SS 32,900원 구간으로 C24 집중. 안정적 광고 집행 중.</div>
+      </div>
+      <div class="hack-card hack-during">
+        <h4>해킹 중 (3/26~3/30) · 5일 — 광고 강제 중단</h4>
+        <div class="hack-stat">
+          <div class="hs-item"><div class="hs-val">71,677</div><div class="hs-lbl" style="color:#dc2626;">메타 일평균</div></div>
+          <div class="hs-item"><div class="hs-val">335,940</div><div class="hs-lbl" style="color:#dc2626;">C24 일평균 ↓</div></div>
+          <div class="hs-item"><div class="hs-val highlight">450,380</div><div class="hs-lbl" style="color:#059669;">SS 일평균 ↑ 오히려 증가!</div></div>
+        </div>
+        <div class="hack-note"><b>3/25 메타 70만원의 낙수효과.</b> 광고 중단 직후 SS 450,380원/일로 상승 — 전날 광고가 다음날 터진 케이스. C24는 메타 중단과 즉각 하락, SS는 하루 늦게 반응하는 패턴이 그대로 드러남.</div>
+      </div>
+      <div class="hack-card hack-after">
+        <h4>해킹 후 (3/31~4/5) · 6일 — 광고 재개</h4>
+        <div class="hack-stat">
+          <div class="hs-item"><div class="hs-val" style="color:#1877F2;">582,060</div><div class="hs-lbl" style="color:#1877F2;">메타 일평균</div></div>
+          <div class="hs-item"><div class="hs-val" style="color:#059669;">1,237,183</div><div class="hs-lbl" style="color:#059669;">C24 일평균 ↑↑</div></div>
+          <div class="hs-item"><div class="hs-val" style="color:#d97706;">242,633</div><div class="hs-lbl" style="color:#d97706;">SS 일평균</div></div>
+        </div>
+        <div class="hack-note">광고 재개 후 폭발적 투자(58만원/일). C24 급등(123만원/일). SS 낮음 — 여전히 SS 32,900원이라 C24로 집중.</div>
+      </div>
+    </div>
+    <div class="insight insight-red">
+      <b>낙수효과 실증 케이스:</b> 해킹 기간(3/26~3/30) SS 450,380원/일은 데이터 이상이 아니라 3/25 메타 70만원 집행의 다음날 낙수효과다. C24는 메타 중단과 동시에 즉각 급감 → <b>메타-C24 직접 연결</b> 확인. SS는 하루 뒤 반응 → <b>메타-SS 시차 낙수</b> 확인. 같은 기간에 두 패턴이 동시에 관찰된 것.
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 7: 전체 상관계수 요약
+  ═══════════════════════════════════════ -->
+  <div class="sec-label">
+    <span class="sec-num">SECTION 07</span>
+  </div>
+  <div class="sec-title">전체 기간 채널 간 상관계수 요약 (105일)</div>
+  <div class="sec-sub">상관계수 해석 기준 — 0.7 이상: 강한 / 0.4~0.7: 중간 / 0.4 미만: 약한 / 음수: 반비례</div>
+
+  <div class="corr6-grid">
+    <div class="corr6-card">
+      <h4>① 메타 광고비 vs Cafe24 매출 (당일)</h4>
+      <span class="clbl clbl-strong">강한 양의 상관</span>
+      <div class="cv c-blue">0.752</div>
+      <div class="corr6-bar"><div class="corr-bar-inner" style="width:75.2%; background:#1877F2;"></div></div>
+      <p>메타 광고 많은 날 C24 매출도 즉각 상승. 가장 명확한 직접 연결.</p>
+    </div>
+    <div class="corr6-card">
+      <h4>② 메타 당일 → Cafe24 다음날 (시차)</h4>
+      <span class="clbl clbl-medium">중간-강한 상관</span>
+      <div class="cv c-blue" style="font-size:30px;">0.627</div>
+      <div class="corr6-bar"><div class="corr-bar-inner" style="width:62.7%; background:#3b82f6;"></div></div>
+      <p>오늘 메타 광고 → 내일 C24 매출 상승. 당일보다 약한 것은 즉각 반응 때문.</p>
+    </div>
+    <div class="corr6-card">
+      <h4>③ 메타 광고비 vs 스마트스토어 (당일)</h4>
+      <span class="clbl clbl-medium">중간 상관</span>
+      <div class="cv c-orange">0.345</div>
+      <div class="corr6-bar"><div class="corr-bar-inner" style="width:34.5%; background:#f59e0b;"></div></div>
+      <p>당일보다 다음날(0.441)이 더 강함 → 낙수효과 작동.</p>
+    </div>
+    <div class="corr6-card">
+      <h4>④ 메타 당일 → SS 다음날 (시차 낙수)</h4>
+      <span class="clbl clbl-medium">중간 상관</span>
+      <div class="cv c-green">0.441</div>
+      <div class="corr6-bar"><div class="corr-bar-inner" style="width:44.1%; background:#10b981;"></div></div>
+      <p>당일(0.345)보다 다음날(0.441)이 더 강함 — 낙수효과 핵심 증거.</p>
+    </div>
+    <div class="corr6-card">
+      <h4>⑤ Cafe24 매출 vs 스마트스토어 (당일)</h4>
+      <span class="clbl clbl-weak">약한 상관</span>
+      <div class="cv c-orange" style="font-size:30px;">0.272</div>
+      <div class="corr6-bar"><div class="corr-bar-inner" style="width:27.2%; background:#f59e0b;"></div></div>
+      <p>가격에 따라 음수로 반전 가능. SS 비쌈 구간: r=-0.261 (경쟁 관계).</p>
+    </div>
+    <div class="corr6-card">
+      <h4>⑥ 네이버 광고비 vs 스마트스토어</h4>
+      <span class="clbl clbl-neg">상관 없음</span>
+      <div class="cv c-red" style="font-size:30px;">-0.034</div>
+      <div class="corr6-bar"><div class="corr-bar-inner" style="width:3.4%; background:#ef4444;"></div></div>
+      <p>4월 네이버 1만원대로 줄였는데 SS 최고치. 메타가 SS 유입 주도.</p>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- ═══════════════════════════════════════
+       SECTION 8: 월별 요약
+  ═══════════════════════════════════════ -->
+  <div class="sec-label">
+    <span class="sec-num">SECTION 08</span>
+  </div>
+  <div class="sec-title">월별 성과 요약</div>
+  <div class="sec-sub">월 단위 집계 · 4월은 1~15일만 포함</div>
+
+  <div class="two-col">
+    <div class="card-sm">
+      <div style="font-size:15px; font-weight:800; color:#222; margin-bottom:14px;">월별 성과</div>
+      <table>
+        <tr>
+          <th>월</th>
+          <th>메타 일평균</th>
+          <th style="background:#475569;">네이버 일평균</th>
+          <th>C24 일평균</th>
+          <th>SS 일평균</th>
+          <th>C24 ROAS</th>
+          <th>통합 ROAS</th>
+        </tr>
+        <tr>
+          <td><b>1월</b></td>
+          <td>313,430</td><td style="color:#94a3b8;">49,633</td><td>504,535</td><td>321,268</td>
+          <td class="mid">1.61배</td><td class="mid">2.63배</td>
+        </tr>
+        <tr>
+          <td><b>2월</b></td>
+          <td>204,564</td><td style="color:#94a3b8;">80,632</td><td>352,072</td><td>248,589</td>
+          <td class="mid">1.72배</td><td class="mid">2.93배</td>
+        </tr>
+        <tr>
+          <td><b>3월</b></td>
+          <td>227,866</td><td style="color:#dc2626; font-weight:700;">153,999</td><td>613,074</td><td>278,197</td>
+          <td class="hi">2.69배</td><td class="hi">3.91배</td>
+        </tr>
+        <tr>
+          <td><b>4월(1~15)</b></td>
+          <td>600,517</td><td style="color:#94a3b8;">71,337</td><td>1,147,411</td><td>457,994</td>
+          <td class="mid">1.91배</td><td class="mid">2.67배</td>
+        </tr>
+        <tr class="row-total">
+          <td><b>전체</b></td>
+          <td>300,150</td><td>91,812</td><td>587,762</td><td>308,703</td>
+          <td class="mid">1.96배</td><td class="hi">2.99배</td>
+        </tr>
+      </table>
+      <div style="margin-top:14px; font-size:12px; color:#555; background:#f8fafc; border-radius:8px; padding:12px 14px; line-height:1.8;">
+        <b>전체 합계</b><br>
+        총 메타 광고비: <b>31,515,706원</b><br>
+        총 네이버 광고비: <b style="color:#94a3b8;">9,640,352원</b> (메타의 30.6%)<br>
+        총 C24 매출: <b>61,715,049원</b> (C24 ROAS 1.96배)<br>
+        총 SS 매출: <b>32,413,810원</b><br>
+        <b>통합 ROAS: 2.99배</b> | C24:SS = 65.6% : 34.4%
+      </div>
+    </div>
+
+    <div class="card-sm">
+      <div style="font-size:15px; font-weight:800; color:#222; margin-bottom:4px;">4월 일별 성과</div>
+      <div style="font-size:12px; color:#888; margin-bottom:12px;">4/6부터 SS 27,900원 적용 — SS 매출 급등</div>
+      <div style="overflow-y:auto; max-height:460px;">
+        <table>
+          <tr>
+            <th>날짜</th>
+            <th>메타</th>
+            <th>C24</th>
+            <th>SS</th>
+            <th>통합ROAS</th>
+          </tr>
+          <tr><td>04-01</td><td>727,741</td><td>1,655,100</td><td>243,500</td><td class="mid">2.61배</td></tr>
+          <tr><td>04-02</td><td>489,873</td><td>1,049,100</td><td>216,500</td><td class="mid">2.58배</td></tr>
+          <tr><td>04-03</td><td>569,471</td><td>1,340,000</td><td>178,600</td><td class="mid">2.67배</td></tr>
+          <tr><td>04-04</td><td>579,771</td><td>1,117,105</td><td>205,600</td><td class="mid">2.28배</td></tr>
+          <tr><td>04-05</td><td>592,713</td><td>1,380,400</td><td>254,400</td><td class="mid">2.76배</td></tr>
+          <tr style="background:#f0fdf4;">
+            <td><b style="color:#059669;">04-06</b></td><td>656,703</td><td>1,067,536</td><td style="color:#059669; font-weight:700;">521,300</td><td class="mid">2.42배</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td><b style="color:#059669;">04-07</b></td><td>630,146</td><td>953,089</td><td style="color:#059669; font-weight:700;">502,200</td><td class="mid">2.31배</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td><b style="color:#059669;">04-08</b></td><td>636,245</td><td>1,021,715</td><td style="color:#059669; font-weight:700;">526,400</td><td class="mid">2.43배</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td><b style="color:#059669;">04-09</b></td><td>718,268</td><td>1,151,305</td><td style="color:#059669; font-weight:700;">473,400</td><td class="mid">2.26배</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td><b style="color:#059669;">04-10</b></td><td>646,945</td><td>1,534,005</td><td style="color:#059669; font-weight:700;">635,310</td><td class="hi">3.35배</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td><b style="color:#059669;">04-11</b></td><td>663,589</td><td>869,400</td><td style="color:#059669; font-weight:700;">557,100</td><td class="mid">2.15배</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td><b style="color:#059669;">04-12</b></td><td>689,712</td><td>1,094,900</td><td style="color:#059669; font-weight:700;">667,800</td><td class="mid">2.56배</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td><b style="color:#059669;">04-13</b></td><td>585,396</td><td>1,039,300</td><td style="color:#059669; font-weight:700;">556,200</td><td class="mid">2.73배</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td><b style="color:#059669;">04-14</b></td><td>430,963</td><td>895,300</td><td style="color:#059669; font-weight:700;">635,900</td><td class="hi">3.55배</td>
+          </tr>
+          <tr style="background:#f0fdf4;">
+            <td><b style="color:#059669;">04-15</b></td><td>390,213</td><td>1,042,905</td><td style="color:#059669; font-weight:700;">695,700</td><td class="hi">4.46배</td>
+          </tr>
+        </table>
+      </div>
+      <div style="margin-top:8px; font-size:11px; color:#059669; background:#f0fdf4; border-radius:6px; padding:8px 10px;">
+        초록 행(4/6~4/15): SS 27,900원 적용 구간. SS 매출 47~70만원으로 폭등.
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+const eventLabels = ['새해\n이벤트','신제품\n이벤트','설날\n이벤트','급찐급빠\n컨셉','이벤트\n없음','생일\n파티'];
+
+new Chart(document.getElementById('chartRoas'), {
+  type: 'bar',
+  data: {
+    labels: eventLabels,
+    datasets: [
+      { label: 'C24 ROAS', data: [1.57, 1.64, 1.62, 2.57, 2.52, 1.76], backgroundColor: 'rgba(24,119,242,0.7)', borderColor: '#1877F2', borderWidth: 1.5 },
+      { label: '통합 ROAS', data: [2.89, 2.31, 2.88, 3.75, 3.50, 2.72], backgroundColor: 'rgba(16,185,129,0.7)', borderColor: '#10b981', borderWidth: 1.5 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      annotation: {
+        annotations: {
+          best: { type: 'box', xMin: 3-0.4, xMax: 3+0.4, backgroundColor: 'rgba(245,158,11,0.1)', borderColor: '#f59e0b', borderWidth: 1.5,
+            label: { display: true, content: '최고 ★', color: '#92400e', font: { size: 10, weight: 'bold' }, position: { x:'center', y:'start' } } },
+          worst: { type: 'box', xMin: 5-0.4, xMax: 5+0.4, backgroundColor: 'rgba(239,68,68,0.07)', borderColor: '#ef4444', borderWidth: 1.5,
+            label: { display: true, content: '최저', color: '#991b1b', font: { size: 10, weight: 'bold' }, position: { x:'center', y:'start' } } }
+        }
+      }
+    },
+    scales: {
+      y: { min: 0, max: 4.5, ticks: { callback: v => v.toFixed(1)+'배' }, grid: { color: '#f1f5f9' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+new Chart(document.getElementById('chartShare'), {
+  type: 'bar',
+  data: {
+    labels: eventLabels,
+    datasets: [
+      { label: 'C24 비중(%)', data: [54.4, 71.1, 56.2, 68.5, 72.1, 64.9], backgroundColor: 'rgba(24,119,242,0.75)', borderColor: '#1877F2', borderWidth: 1 },
+      { label: 'SS 비중(%)',  data: [45.6, 28.9, 43.8, 31.5, 27.9, 35.1], backgroundColor: 'rgba(16,185,129,0.75)', borderColor: '#10b981', borderWidth: 1 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: { legend: { position: 'top' },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + ctx.parsed.y + '%' } }
+    },
+    scales: {
+      x: { stacked: true, grid: { display: false } },
+      y: { stacked: true, min: 0, max: 100, ticks: { callback: v => v+'%' }, grid: { color: '#f1f5f9' } }
+    }
+  }
+});
+
+new Chart(document.getElementById('chartCorr'), {
+  type: 'bar',
+  data: {
+    labels: ['메타 vs C24', '메타 vs C24 lag', '메타 vs SS', '메타 vs SS lag'],
+    datasets: [
+      { label: 'SS 동일가격 29,900', data: [0.524, 0.433, 0.368, 0.396], backgroundColor: 'rgba(59,130,246,0.7)', borderColor: '#3b82f6', borderWidth: 1.5 },
+      { label: 'SS 비쌈 32,900',     data: [0.889, 0.584, -0.335, -0.124], backgroundColor: 'rgba(239,68,68,0.7)', borderColor: '#ef4444', borderWidth: 1.5 },
+      { label: 'SS 저렴 27,900',     data: [0.282, 0.360, -0.598, -0.429], backgroundColor: 'rgba(34,197,94,0.7)', borderColor: '#22c55e', borderWidth: 1.5 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': r=' + ctx.parsed.y.toFixed(3) } },
+      annotation: {
+        annotations: {
+          zeroLine: { type: 'line', yMin: 0, yMax: 0, borderColor: '#666', borderWidth: 1, borderDash: [4,4] },
+          strong: { type: 'line', yMin: 0.7, yMax: 0.7, borderColor: '#1877F2', borderWidth: 1, borderDash: [3,3],
+            label: { display: true, content: '0.7 강한상관', position: 'end', color: '#1877F2', font: { size: 9 }, padding: 2 } },
+          medium: { type: 'line', yMin: 0.4, yMax: 0.4, borderColor: '#f59e0b', borderWidth: 1, borderDash: [3,3],
+            label: { display: true, content: '0.4 중간상관', position: 'end', color: '#d97706', font: { size: 9 }, padding: 2 } }
+        }
+      }
+    },
+    scales: {
+      y: { min: -0.8, max: 1.0, ticks: { callback: v => v.toFixed(1) }, grid: { color: '#f1f5f9' } },
+      x: { grid: { display: false } }
+    }
+  }
+});
+
+const lagLabels = [
+  "01-01","01-02","01-03","01-04","01-05","01-06","01-07","01-08","01-09","01-10",
+  "01-11","01-12","01-13","01-14","01-15","01-16","01-17","01-18","01-19","01-20",
+  "01-21","01-22","01-23","01-24","01-25","01-26","01-27","01-28","01-29","01-30","01-31",
+  "02-01","02-02","02-03","02-04","02-05","02-06","02-07","02-08","02-09","02-10",
+  "02-11","02-12","02-13","02-14","02-15","02-16","02-17","02-18","02-19","02-20",
+  "02-21","02-22","02-23","02-24","02-25","02-26","02-27","02-28",
+  "03-01","03-02","03-03","03-04","03-05","03-06","03-07","03-08","03-09","03-10",
+  "03-11","03-12","03-13","03-14","03-15","03-16","03-17","03-18","03-19","03-20",
+  "03-21","03-22","03-23","03-24","03-25","03-26","03-27","03-28","03-29","03-30","03-31",
+  "04-01","04-02","04-03","04-04","04-05","04-06","04-07","04-08","04-09","04-10",
+  "04-11","04-12","04-13","04-14"
+];
+
+const lagMeta = [
+  269681,178550,146179,153380,148193,193847,201741,201826,211615,204937,
+  256416,246768,323519,541625,579058,469190,369530,443865,435544,358545,
+  294601,290009,284654,242177,282597,347153,482878,454900,402183,369131,332047,
+  418006,353358,317869,322994,381754,370489,370325,437418,376217,254128,
+  120775,104798,93815,76104,97426,91908,64934,58038,51317,128443,
+  141403,147336,110558,186325,117938,124829,134786,274489,
+  259320,153417,108454,93327,138416,144629,196753,273363,234050,203787,
+  229983,211897,165204,201473,263115,325257,261614,207894,227391,298102,
+  309740,297225,268690,398029,701525,164330,0,12415,14754,166889,532795,
+  727741,489873,569471,579771,592713,656703,630146,636245,718268,646945,
+  663589,689712,585396,430963
+];
+
+const lagSSNext = [
+  350000,236200,299000,556500,412800,350100,266200,385800,380000,380000,
+  323100,230500,385800,442700,418600,299000,673200,463900,329200,151600,
+  227400,303200,151600,292300,140700,188500,393100,151600,265300,113700,
+  216500,178600,189500,559400,239200,320200,353900,500500,347100,556400,
+  474500,89700,265200,239200,59800,179400,203500,413700,59800,0,
+  29900,0,113700,468900,344300,151600,292300,113700,
+  281400,189500,37900,243500,75800,113700,189500,189500,188500,242500,
+  178600,205600,357200,408200,10900,457000,318300,337100,496900,453800,
+  178600,113700,184500,373300,189500,675500,292300,178600,695300,410200,357200,
+  243500,216500,178600,205600,254400,521300,502200,526400,473400,635310,
+  557100,667800,556200,635900,695700
+];
+
+new Chart(document.getElementById('chartLagFull'), {
+  type: 'bar',
+  data: {
+    labels: lagLabels,
+    datasets: [
+      { label: '메타 광고비 (당일)', data: lagMeta, backgroundColor: 'rgba(24,119,242,0.5)', borderColor: '#1877F2', borderWidth: 0.8, yAxisID: 'y', order: 2 },
+      { label: 'SS 매출 (다음날)', data: lagSSNext, type: 'line', borderColor: '#10b981', backgroundColor: 'rgba(16,185,129,0.08)', borderWidth: 2.5, pointRadius: 1.5, pointBackgroundColor: '#10b981', tension: 0.35, yAxisID: 'y', order: 1 }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + (ctx.parsed.y/10000).toFixed(1) + '만원' } },
+      annotation: {
+        annotations: {
+          price1: { type: 'box', xMin: '01-01', xMax: '03-09', backgroundColor: 'rgba(59,130,246,0.04)', borderColor: 'rgba(59,130,246,0.15)', borderWidth: 1,
+            label: { display: true, content: 'SS = 자사몰 29,900원', position: { x:'center', y:'start' }, color: '#1e3a8a', font: { size: 9 }, padding: 2 } },
+          price2: { type: 'box', xMin: '03-10', xMax: '04-05', backgroundColor: 'rgba(251,191,36,0.07)', borderColor: 'rgba(234,179,8,0.3)', borderWidth: 1.5,
+            label: { display: true, content: 'SS 32,900원 (비쌈)', position: { x:'center', y:'start' }, color: '#78350f', font: { size: 9 }, padding: 2 } },
+          price3: { type: 'box', xMin: '04-06', xMax: '04-14', backgroundColor: 'rgba(16,185,129,0.09)', borderColor: 'rgba(16,185,129,0.4)', borderWidth: 1.5,
+            label: { display: true, content: 'SS 27,900원 (저렴)', position: { x:'center', y:'start' }, color: '#065f46', font: { size: 9, weight: 'bold' }, padding: 2 } },
+          hack: { type: 'box', xMin: '03-26', xMax: '03-30', backgroundColor: 'rgba(220,38,38,0.13)', borderColor: 'rgba(220,38,38,0.8)', borderWidth: 2, borderDash: [4,3],
+            label: { display: true, content: '해킹 중단', position: { x:'center', y:'center' }, color: '#7f1d1d', font: { size: 9, weight: 'bold' }, padding: 2 } },
+          spike: { type: 'line', xMin: '03-25', xMax: '03-25', borderColor: 'rgba(234,179,8,0.9)', borderWidth: 2, borderDash: [4,3],
+            label: { display: true, content: '3/25 70만', position: 'start', color: '#78350f', font: { size: 9 }, padding: 2 } }
+        }
+      }
+    },
+    scales: {
+      y: { ticks: { callback: v => (v/10000).toFixed(0)+'만' }, grid: { color: '#f1f5f9' } },
+      x: { grid: { display: false }, ticks: { maxTicksLimit: 20, maxRotation: 45, font: { size: 10 } } }
+    }
+  }
+});
+
+const zoneLabels = [
+  "①1/14","1/15","1/16","1/17","1/18","1/19","",
+  "②2/05","2/06","2/07","2/08","2/09","",
+  "③3/24","3/25","3/26","",
+  "④4/06","4/07","4/08","4/09","4/10","4/11","4/12","4/13","4/14"
+];
+const zoneMeta = [
+  541625,579058,469190,369530,443865,435544,null,
+  381754,370489,370325,437418,376217,null,
+  398029,701525,164330,null,
+  656703,630146,636245,718268,646945,663589,689712,585396,430963
+];
+const zoneSS = [
+  442700,418600,299000,673200,463900,329200,null,
+  320200,353900,500500,347100,556400,null,
+  189500,675500,292300,null,
+  502200,526400,473400,635310,557100,667800,556200,635900,695700
+];
+const zoneColors = [
+  'rgba(251,191,36,0.8)','rgba(251,191,36,0.8)','rgba(251,191,36,0.8)','rgba(251,191,36,0.8)','rgba(251,191,36,0.8)','rgba(251,191,36,0.8)','rgba(0,0,0,0)',
+  'rgba(167,139,250,0.8)','rgba(167,139,250,0.8)','rgba(167,139,250,0.8)','rgba(167,139,250,0.8)','rgba(167,139,250,0.8)','rgba(0,0,0,0)',
+  'rgba(52,211,153,0.8)','rgba(52,211,153,0.8)','rgba(52,211,153,0.8)','rgba(0,0,0,0)',
+  'rgba(74,222,128,0.8)','rgba(74,222,128,0.8)','rgba(74,222,128,0.8)','rgba(74,222,128,0.8)','rgba(74,222,128,0.8)','rgba(74,222,128,0.8)','rgba(74,222,128,0.8)','rgba(74,222,128,0.8)','rgba(74,222,128,0.8)'
+];
+
+new Chart(document.getElementById('chartZones'), {
+  type: 'bar',
+  data: {
+    labels: zoneLabels,
+    datasets: [
+      { label: '메타 광고비 (당일)', data: zoneMeta, backgroundColor: zoneColors, borderColor: zoneColors.map(c => c.replace(/[\d.]+\)$/, '1)')), borderWidth: 1, yAxisID: 'y', order: 2 },
+      { label: 'SS 매출 (다음날)', data: zoneSS, type: 'line', borderColor: '#ef4444', backgroundColor: 'rgba(239,68,68,0.07)', borderWidth: 2.5, pointRadius: 4, pointBackgroundColor: '#ef4444', tension: 0.3, yAxisID: 'y', order: 1, spanGaps: false }
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {
+      legend: { position: 'top' },
+      tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': ' + (ctx.parsed.y != null ? (ctx.parsed.y/10000).toFixed(1)+'만원' : '-') } }
+    },
+    scales: {
+      y: { ticks: { callback: v => (v/10000).toFixed(0)+'만' }, grid: { color: '#f1f5f9' } },
+      x: { grid: { display: false }, ticks: { maxRotation: 45, font: { size: 10 } } }
+    }
+  }
+});
+</script>
+</body>
+</html>
