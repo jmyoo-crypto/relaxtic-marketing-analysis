@@ -623,6 +623,37 @@ tr:hover td { background: #fafafa; }
       <div class="chart-wrap" style="height:280px;"><canvas id="chartCorr"></canvas></div>
     </div>
 
+    <!-- 쉬운 해설 -->
+    <div style="margin-bottom:16px;">
+      <div style="font-size:12px; font-weight:800; letter-spacing:1px; text-transform:uppercase; color:#888; margin-bottom:12px;">쉽게 읽기 — 각 가격 구간이 실제로 어떤 상황인가?</div>
+      <div style="display:flex; flex-direction:column; gap:10px;">
+
+        <div style="background:#fef2f2; border-radius:10px; padding:14px 16px; border-left:3px solid #dc2626;">
+          <div style="font-size:12px; font-weight:800; color:#dc2626; margin-bottom:6px;">📌 SS 비쌈(32,900원) — 메타 광고비가 C24로 거의 다 몰린다</div>
+          <div style="font-size:13px; color:#374151; line-height:1.75;">
+            메타→C24 r=<b>0.889</b> : 메타 광고를 많이 쓴 날, 자사몰 매출이 거의 정확하게 같이 오름. <b>"광고 보고 온 사람이 스마트스토어 가격(32,900원)을 보고 자사몰(29,900원)에서 바로 삼"</b>이라는 뜻.<br>
+            메타→SS r=<b style="color:#dc2626;">-0.335</b> : 반대로 메타를 많이 쓸수록 SS는 오히려 약간 줄어드는 경향. 자사몰이 더 저렴하니 SS로 갈 이유가 없음.
+          </div>
+        </div>
+
+        <div style="background:#eff6ff; border-radius:10px; padding:14px 16px; border-left:3px solid #3b82f6;">
+          <div style="font-size:12px; font-weight:800; color:#1e40af; margin-bottom:6px;">📌 SS 동일(29,900원) — 메타 광고가 두 채널을 균형 있게 끌어올린다</div>
+          <div style="font-size:13px; color:#374151; line-height:1.75;">
+            메타→C24 r=<b>0.524</b>, 메타→SS r=<b>0.368</b> : 광고를 많이 쓰면 자사몰도 오르고 스마트스토어도 어느 정도 같이 오름. 가격이 같으니 어디서 살지 고민하는 사람이 생기고, 그 중 일부가 <b>네이버 검색 → 다음날 SS 구매(낙수효과 lag r=0.396)</b>로 이어짐.
+          </div>
+        </div>
+
+        <div style="background:#f0fdf4; border-radius:10px; padding:14px 16px; border-left:3px solid #22c55e;">
+          <div style="font-size:12px; font-weight:800; color:#15803d; margin-bottom:6px;">📌 SS 저렴(27,900원) — 숫자가 이상해 보이지만 SS 매출은 실제로 최고</div>
+          <div style="font-size:13px; color:#374151; line-height:1.75;">
+            메타→SS r=<b style="color:#dc2626;">-0.598</b> : 얼핏 보면 "메타를 쓸수록 SS가 떨어진다?"로 읽히지만 <b>이건 오해</b>. 이 구간은 메타를 이미 매일 비슷하게 많이 써서 날마다 변동이 거의 없음. 상관계수는 "같이 움직이는 패턴"을 보는 건데, 한쪽(메타)이 거의 안 변하면 계수가 왜곡됨.<br>
+            실제로는 <b>SS 일평균 577,131원으로 세 구간 중 압도적 1위</b>. SS가 저렴하니 광고 본 사람들이 SS로 이동한 것.
+          </div>
+        </div>
+
+      </div>
+    </div>
+
     <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
       <div class="insight insight-blue" style="margin-bottom:0;">
         <b>SS 비쌈(32,900원)일 때</b><br>메타→C24 r=<b>0.889</b> (역설적 최강)<br>메타→SS r=-0.335 (이탈 없음)<br>C24↑ SS↓ 경쟁 구조 확인
