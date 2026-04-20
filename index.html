@@ -7,166 +7,161 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3/dist/chartjs-plugin-annotation.min.js"></script>
 <style>
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css');
 * { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f4f6f9; color: #1a1a2e; line-height: 1.6; }
+body { font-family: 'Pretendard', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif; background: #f0f2f5; color: #1a1a2e; line-height: 1.7; font-size: 14px; }
 
-/* ── 헤더 ── */
-.header { background: linear-gradient(135deg, #1877F2 0%, #0f5bbf 50%, #0a3d8f 100%); padding: 36px 40px 28px; color: #fff; }
-.header-badge { display: inline-block; background: rgba(255,255,255,0.2); border-radius: 20px; padding: 4px 14px; font-size: 12px; font-weight: 600; letter-spacing: 0.5px; margin-bottom: 12px; }
-.header h1 { font-size: 26px; font-weight: 900; margin-bottom: 8px; letter-spacing: -0.5px; }
-.header-meta { font-size: 13px; opacity: 0.82; display: flex; gap: 20px; flex-wrap: wrap; }
-.header-meta span { display: flex; align-items: center; gap: 5px; }
+/* ── 히어로 헤더 ── */
+.header { background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 100%); padding: 52px 48px 44px; color: #fff; }
+.header-badge { font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.4); margin-bottom: 14px; display: block; }
+.header h1 { font-size: 28px; font-weight: 800; line-height: 1.35; margin-bottom: 10px; }
+.header p { font-size: 13px; color: rgba(255,255,255,.5); }
+.header-meta { display: flex; gap: 10px; margin-top: 18px; flex-wrap: wrap; }
+.header-meta span { font-size: 11px; font-weight: 600; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.15); border-radius: 20px; padding: 3px 12px; color: rgba(255,255,255,.65); }
 
 /* ── 공통 레이아웃 ── */
-.container { max-width: 1140px; margin: 0 auto; padding: 32px 20px 60px; }
-.sec-label { display: inline-flex; align-items: center; gap: 8px; margin-bottom: 6px; }
-.sec-num { background: #1877F2; color: #fff; border-radius: 6px; padding: 2px 9px; font-size: 11px; font-weight: 800; letter-spacing: 0.5px; }
-.sec-title { font-size: 19px; font-weight: 900; color: #111; margin-bottom: 4px; }
-.sec-sub { font-size: 13px; color: #777; margin-bottom: 24px; line-height: 1.55; }
-.divider { height: 1px; background: #e2e8f0; margin: 36px 0; }
+.container { max-width: 980px; margin: 0 auto; padding: 36px 24px 80px; }
+.sec-label { display: block; margin-bottom: 10px; }
+.sec-num { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: #888; }
+.sec-title { font-size: 20px; font-weight: 800; color: #1a1a2e; margin-bottom: 5px; }
+.sec-sub { font-size: 13px; color: #888; margin-bottom: 20px; line-height: 1.6; }
+.divider { height: 1px; background: #f0f0f0; margin: 36px 0; }
 
-.card { background: #fff; border-radius: 14px; padding: 28px 28px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04); margin-bottom: 20px; }
-.card-sm { background: #fff; border-radius: 12px; padding: 20px 22px; box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04); }
+.card { background: #fff; border-radius: 14px; padding: 26px 28px; box-shadow: 0 1px 8px rgba(0,0,0,.05); margin-bottom: 12px; }
+.card-sm { background: #fff; border-radius: 14px; padding: 26px 28px; box-shadow: 0 1px 8px rgba(0,0,0,.05); }
 
-/* ── 결론 박스 ── */
-.conclusion-box { background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); border-radius: 16px; padding: 30px 32px; color: #fff; margin-bottom: 28px; }
-.conclusion-box .cb-title { font-size: 13px; font-weight: 700; color: #94a3b8; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
-.conclusion-box h2 { font-size: 22px; font-weight: 900; color: #f1f5f9; margin-bottom: 20px; letter-spacing: -0.5px; }
+/* ── 결론 박스 (dark-box) ── */
+.conclusion-box { background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 100%); border-radius: 14px; padding: 28px 32px; color: #fff; margin-bottom: 24px; }
+.conclusion-box .cb-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 16px; }
+.conclusion-box h2 { font-size: 20px; font-weight: 800; color: #f1f5f9; margin-bottom: 20px; }
 .conclusion-list { display: flex; flex-direction: column; gap: 12px; }
-.cl-item { display: flex; gap: 14px; align-items: flex-start; }
-.cl-num { background: #1877F2; color: #fff; border-radius: 50%; width: 26px; height: 26px; min-width: 26px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 800; margin-top: 1px; }
-.cl-text { font-size: 14px; color: #e2e8f0; line-height: 1.65; }
-.cl-text b { color: #60a5fa; }
+.cl-item { display: flex; gap: 12px; align-items: flex-start; font-size: 14px; color: rgba(255,255,255,.75); line-height: 1.65; }
+.cl-num { background: rgba(255,255,255,.15); color: #fff; border-radius: 50%; width: 24px; height: 24px; min-width: 24px; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 800; margin-top: 2px; flex-shrink: 0; }
+.cl-text { font-size: 14px; color: rgba(255,255,255,.75); line-height: 1.65; }
+.cl-text b { color: #fff; }
 .cl-text em { color: #34d399; font-style: normal; font-weight: 700; }
 
-/* ── 채널 연관성 4개 큰 카드 ── */
-.relation-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-bottom: 28px; }
-.rel-card { background: #fff; border-radius: 14px; padding: 22px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 4px 16px rgba(0,0,0,0.04); border-top: 4px solid #ddd; position: relative; overflow: hidden; }
-.rel-card::before { content: ''; position: absolute; top: 0; right: 0; width: 80px; height: 80px; border-radius: 0 0 0 100%; opacity: 0.07; }
-.rel-card.r1 { border-top-color: #1877F2; }
-.rel-card.r1::before { background: #1877F2; }
-.rel-card.r2 { border-top-color: #10b981; }
-.rel-card.r2::before { background: #10b981; }
+/* ── 채널 연관성 4개 카드 ── */
+.relation-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 12px; }
+.rel-card { background: #fff; border-radius: 14px; padding: 22px 24px; box-shadow: 0 1px 8px rgba(0,0,0,.05); border-top: 3px solid #e5e7eb; }
+.rel-card.r1 { border-top-color: #1a1a2e; }
+.rel-card.r2 { border-top-color: #34d399; }
 .rel-card.r3 { border-top-color: #f59e0b; }
-.rel-card.r3::before { background: #f59e0b; }
-.rel-card.r4 { border-top-color: #8b5cf6; }
-.rel-card.r4::before { background: #8b5cf6; }
+.rel-card.r4 { border-top-color: #94a3b8; }
 .rel-card-header { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
-.rel-icon { width: 36px; height: 36px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-.ri-blue { background: #dbeafe; }
-.ri-green { background: #d1fae5; }
-.ri-orange { background: #fef3c7; }
-.ri-purple { background: #ede9fe; }
-.rel-card h3 { font-size: 14px; font-weight: 800; color: #111; line-height: 1.3; }
-.rel-card h3 span { font-size: 12px; font-weight: 500; color: #888; display: block; }
+.rel-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 17px; background: #f7f8fa; }
+.ri-blue,.ri-green,.ri-orange,.ri-purple { background: #f7f8fa; }
+.rel-card h3 { font-size: 14px; font-weight: 800; color: #1a1a2e; line-height: 1.3; }
+.rel-card h3 span { font-size: 12px; font-weight: 500; color: #94a3b8; display: block; }
 
-.corr-big { display: flex; align-items: baseline; gap: 8px; margin-bottom: 8px; }
-.corr-big .val { font-size: 42px; font-weight: 900; line-height: 1; }
-.c-blue { color: #1877F2; }
-.c-green { color: #059669; }
+.corr-big { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.corr-big .val { font-size: 38px; font-weight: 800; line-height: 1; color: #1a1a2e; }
+.c-blue { color: #1a1a2e; }
+.c-green { color: #15803d; }
 .c-orange { color: #d97706; }
-.c-purple { color: #7c3aed; }
-.c-red { color: #dc2626; }
-.c-gray { color: #9ca3af; }
-.corr-big .arrow { font-size: 14px; color: #aaa; }
-.corr-big .val2 { font-size: 28px; font-weight: 800; }
-.corr-bar { height: 6px; background: #f1f5f9; border-radius: 3px; margin-bottom: 10px; }
-.corr-bar-inner { height: 100%; border-radius: 3px; transition: width 0.3s; }
-.rel-badge { display: inline-block; font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; margin-bottom: 10px; }
-.rb-blue { background: #dbeafe; color: #1e40af; }
-.rb-green { background: #d1fae5; color: #065f46; }
-.rb-orange { background: #fef3c7; color: #92400e; }
-.rb-red { background: #fee2e2; color: #991b1b; }
-.rb-purple { background: #ede9fe; color: #5b21b6; }
-.rel-desc { font-size: 12.5px; color: #4b5563; line-height: 1.7; }
+.c-purple { color: #64748b; }
+.c-red { color: #cf1322; }
+.c-gray { color: #aaa; }
+.corr-big .arrow { font-size: 13px; color: #ccc; }
+.corr-big .val2 { font-size: 24px; font-weight: 700; color: #64748b; }
+.corr-bar { height: 5px; background: #f1f5f9; border-radius: 3px; margin-bottom: 10px; }
+.corr-bar-inner { height: 100%; border-radius: 3px; }
+.rel-badge { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-bottom: 10px; }
+.rb-blue { background: #f7f8fa; color: #1a1a2e; }
+.rb-green { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+.rb-orange { background: #fffbeb; color: #92400e; }
+.rb-red { background: #fff1f0; color: #cf1322; }
+.rb-purple { background: #f7f8fa; color: #64748b; }
+.rel-desc { font-size: 13px; color: #555; line-height: 1.75; }
 .rel-desc b { color: #1a1a2e; }
 .rel-sub-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.rel-sub-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 8px 12px; flex: 1; min-width: 100px; }
-.rel-sub-item .rs-label { font-size: 10px; color: #888; margin-bottom: 2px; }
-.rel-sub-item .rs-val { font-size: 15px; font-weight: 800; }
+.rel-sub-item { background: #f7f8fa; border-radius: 8px; padding: 8px 12px; flex: 1; min-width: 90px; }
+.rel-sub-item .rs-label { font-size: 10px; color: #aaa; margin-bottom: 2px; letter-spacing: .3px; }
+.rel-sub-item .rs-val { font-size: 15px; font-weight: 800; color: #1a1a2e; }
 
 /* ── 타임라인 ── */
-.timeline-card { background: #fff; border-radius: 14px; padding: 22px 24px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); margin-bottom: 20px; }
-.timeline-card h3 { font-size: 15px; font-weight: 800; color: #222; margin-bottom: 16px; }
-.tl-bar { display: flex; border-radius: 10px; overflow: hidden; height: 64px; }
+.timeline-card { background: #fff; border-radius: 14px; padding: 22px 24px; box-shadow: 0 1px 8px rgba(0,0,0,.05); margin-bottom: 12px; }
+.timeline-card h3 { font-size: 14px; font-weight: 700; color: #1a1a2e; margin-bottom: 14px; }
+.tl-bar { display: flex; border-radius: 8px; overflow: hidden; height: 60px; }
 .tl-seg { display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 0 8px; text-align: center; }
-.tl-seg .tl-date { font-size: 10px; opacity: 0.75; margin-bottom: 2px; }
+.tl-seg .tl-date { font-size: 10px; opacity: 0.7; margin-bottom: 2px; }
 .tl-seg .tl-name { font-size: 11px; font-weight: 700; margin-bottom: 2px; }
 .tl-seg .tl-price { font-size: 12px; font-weight: 800; }
-.tl-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11.5px; color: #555; margin-top: 10px; }
-.tl-dot { display: inline-block; width: 10px; height: 10px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
+.tl-legend { display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: #888; margin-top: 10px; }
+.tl-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 4px; vertical-align: middle; }
 
 /* ── 표 ── */
 .tbl-wrap { overflow-x: auto; }
 table { width: 100%; border-collapse: collapse; font-size: 13px; }
-th { background: #1e293b; color: #e2e8f0; padding: 11px 13px; text-align: center; font-weight: 600; font-size: 12px; }
-th:first-child { text-align: left; border-radius: 6px 0 0 0; }
-th:last-child { border-radius: 0 6px 0 0; }
-td { padding: 10px 13px; border-bottom: 1px solid #f1f5f9; text-align: center; font-size: 13px; }
+thead tr { border-bottom: 1px solid #eee; }
+th { padding: 9px 12px; text-align: right; font-size: 11px; font-weight: 700; letter-spacing: .5px; color: #aaa; white-space: nowrap; background: transparent; }
+th:first-child { text-align: left; }
+td { padding: 10px 12px; text-align: right; border-bottom: 1px solid #f5f5f5; color: #1a1a2e; font-size: 13px; }
+td:first-child, .td-event { text-align: left; font-weight: 700; }
 tr:last-child td { border-bottom: none; }
-tr:hover td { background: #f8faff; }
-.td-event { text-align: left; font-weight: 600; }
-.hi { color: #059669; font-weight: 800; }
+tr:hover td { background: #fafafa; }
+.hi { color: #389e0d; font-weight: 800; }
 .mid { color: #d97706; font-weight: 700; }
-.lo { color: #dc2626; font-weight: 700; }
-.row-best td { background: #f0fdf4; }
-.row-total td { background: #f0f4ff; font-weight: 700; }
+.lo { color: #cf1322; font-weight: 700; }
+.row-best td { background: #f6ffed; }
+.row-total td { background: #f7f8fa; font-weight: 800; }
 
-/* ── 인사이트 박스 ── */
-.insight { border-radius: 10px; padding: 14px 18px; margin-bottom: 12px; font-size: 13px; line-height: 1.7; }
-.insight-blue { background: #eff6ff; border-left: 4px solid #1877F2; color: #1e40af; }
-.insight-green { background: #f0fdf4; border-left: 4px solid #10b981; color: #065f46; }
-.insight-red { background: #fef2f2; border-left: 4px solid #ef4444; color: #991b1b; }
-.insight-yellow { background: #fffbeb; border-left: 4px solid #f59e0b; color: #92400e; }
-.insight-purple { background: #faf5ff; border-left: 4px solid #8b5cf6; color: #4c1d95; }
+/* ── 태그 배지 (표 안) ── */
+.tag-up  { background: #f6ffed; color: #389e0d; padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+.tag-dn  { background: #fff1f0; color: #cf1322; padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+.tag-neu { background: #f5f5f5; color: #aaa; padding: 2px 7px; border-radius: 5px; font-size: 11px; font-weight: 700; }
+.delta.up  { background: #f6ffed; color: #389e0d; display: inline-block; padding: 3px 9px; border-radius: 6px; font-size: 12px; font-weight: 700; }
+.delta.dn  { background: #fff1f0; color: #cf1322; display: inline-block; padding: 3px 9px; border-radius: 6px; font-size: 12px; font-weight: 700; }
 
-/* ── 해킹 섹션 ── */
-.hack-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 16px; }
-.hack-card { border-radius: 12px; padding: 20px; }
-.hack-before { background: #eff6ff; border: 1.5px solid #bfdbfe; }
-.hack-during { background: #fef2f2; border: 2px solid #fecaca; }
-.hack-after  { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
-.hack-card h4 { font-size: 12px; font-weight: 800; margin-bottom: 12px; }
-.hack-before h4 { color: #1e40af; }
-.hack-during h4 { color: #7f1d1d; }
-.hack-after h4 { color: #14532d; }
-.hack-stat { display: flex; gap: 14px; flex-wrap: wrap; }
-.hs-item { flex-shrink: 0; }
-.hs-val { font-size: 22px; font-weight: 900; line-height: 1.1; }
-.hs-lbl { font-size: 10px; margin-top: 2px; }
-.hack-before .hs-val { color: #1877F2; }
-.hack-during .hs-val { color: #dc2626; }
-.hack-after  .hs-val { color: #059669; }
-.hack-during .hs-val.highlight { color: #059669; font-size: 20px; }
-.hack-note { font-size: 12px; line-height: 1.65; margin-top: 10px; }
-.hack-before .hack-note { color: #1e3a8a; }
-.hack-during .hack-note { color: #7f1d1d; }
-.hack-after .hack-note { color: #14532d; }
+/* ── 인사이트 박스 (metric-block 스타일) ── */
+.insight { background: #f7f8fa; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; font-size: 13px; line-height: 1.75; color: #555; }
+.insight b { color: #1a1a2e; }
+.insight-blue  { background: #f7f8fa; border-left: 3px solid #1a1a2e; }
+.insight-green { background: #f7f8fa; border-left: 3px solid #34d399; }
+.insight-red   { background: #fff1f0; border-left: 3px solid #cf1322; color: #555; }
+.insight-yellow { background: #fffbeb; border-left: 3px solid #f59e0b; color: #555; }
+.insight-purple { background: #f7f8fa; border-left: 3px solid #94a3b8; }
+
+/* ── dark-box (결론) ── */
+.dark-box { background: linear-gradient(135deg, #0d0d1a 0%, #1a1a2e 100%); border-radius: 12px; padding: 22px 26px; margin-top: 14px; }
+.dark-box .d-label { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.35); margin-bottom: 14px; }
+.dark-box .d-row { display: flex; gap: 10px; align-items: flex-start; font-size: 13.5px; color: rgba(255,255,255,.75); line-height: 1.65; margin-bottom: 10px; }
+.dark-box .d-row:last-child { margin-bottom: 0; }
+.dark-box .d-icon { font-size: 15px; flex-shrink: 0; margin-top: 1px; }
+
+/* ── metric-block ── */
+.metric-block { background: #f7f8fa; border-radius: 10px; padding: 16px 18px; margin-top: 12px; }
+.metric-block-title { font-size: 10px; font-weight: 800; color: #aaa; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
 
 /* ── 상관계수 6개 카드 ── */
-.corr6-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-bottom: 28px; }
-.corr6-card { background: #fff; border-radius: 12px; padding: 18px 20px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
-.corr6-card h4 { font-size: 12px; color: #64748b; margin-bottom: 10px; font-weight: 600; }
-.cv { font-size: 36px; font-weight: 900; line-height: 1; margin-bottom: 6px; }
-.corr6-bar { height: 6px; background: #f1f5f9; border-radius: 3px; margin-bottom: 8px; }
+.corr6-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 24px; }
+.corr6-card { background: #f7f8fa; border-radius: 12px; padding: 18px 20px; }
+.corr6-card h4 { font-size: 11px; color: #aaa; margin-bottom: 10px; font-weight: 700; letter-spacing: .5px; text-transform: uppercase; }
+.cv { font-size: 34px; font-weight: 800; line-height: 1; margin-bottom: 6px; color: #1a1a2e; }
+.corr6-bar { height: 5px; background: #e5e7eb; border-radius: 3px; margin-bottom: 8px; }
 .clbl { display: inline-block; font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-bottom: 6px; }
-.clbl-strong { background: #dbeafe; color: #1e40af; }
-.clbl-medium { background: #fef3c7; color: #92400e; }
-.clbl-weak { background: #f1f5f9; color: #64748b; }
-.clbl-neg { background: #fee2e2; color: #991b1b; }
-.corr6-card p { font-size: 12px; color: #4b5563; line-height: 1.65; }
+.clbl-strong { background: #1a1a2e; color: #fff; }
+.clbl-medium { background: #fffbeb; color: #92400e; }
+.clbl-weak { background: #f5f5f5; color: #888; }
+.clbl-neg { background: #fff1f0; color: #cf1322; }
+.corr6-card p { font-size: 12px; color: #888; line-height: 1.65; }
 
 /* ── 차트 ── */
 .chart-wrap { position: relative; }
-.chart-note { font-size: 11.5px; color: #64748b; margin-bottom: 12px; display: flex; gap: 16px; flex-wrap: wrap; }
-.cn-item { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 5px 10px; }
+.chart-note { font-size: 11.5px; color: #94a3b8; margin-bottom: 12px; display: flex; gap: 12px; flex-wrap: wrap; }
+.cn-item { background: #f7f8fa; border-radius: 6px; padding: 4px 10px; font-size: 11px; }
 
 /* ── 낙수 존 배지 ── */
 .zone-badges { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
-.zb { font-size: 11px; font-weight: 700; padding: 4px 10px; border-radius: 6px; }
+.zb { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 6px; }
 
 /* ── 월별 그리드 ── */
-.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+/* ── 채널 구분 헤더 ── */
+.ch-header { display: flex; align-items: center; gap: 12px; margin: 28px 0 14px; }
+.ch-header .ch-line { flex: 1; height: 1px; background: #e5e7eb; }
+.ch-header .ch-title { font-size: 13px; font-weight: 700; white-space: nowrap; padding: 5px 14px; border-radius: 20px; background: #f7f8fa; color: #64748b; border: 1px solid #e5e7eb; }
 
 /* ── 반응형 ── */
 @media (max-width: 960px) {
@@ -897,46 +892,238 @@ tr:hover td { background: #f8faff; }
   <div class="divider"></div>
 
   <!-- ═══════════════════════════════════════
-       SECTION 6: 해킹 이슈
+       SECTION 6: 코호트 분석
   ═══════════════════════════════════════ -->
   <div class="sec-label">
     <span class="sec-num">SECTION 06</span>
   </div>
-  <div class="sec-title">해킹 이슈 영향 분석</div>
-  <div class="sec-sub">3/26~3/30 메타 계정 해킹으로 광고 강제 중단 — 전후 3구간 비교</div>
+  <div class="sec-title">코호트 분석</div>
+  <div class="sec-sub">메타 광고비 규모 · 요일 · 이벤트×가격 3가지 기준으로 그룹을 나눠 낙수효과 강도와 ROAS 차이를 비교</div>
 
-  <div class="card">
-    <div class="hack-grid">
-      <div class="hack-card hack-before">
-        <h4>해킹 전 (3/10~3/25) · 16일</h4>
-        <div class="hack-stat">
-          <div class="hs-item"><div class="hs-val">285,682</div><div class="hs-lbl" style="color:#1877F2;">메타 일평균</div></div>
-          <div class="hs-item"><div class="hs-val" style="color:#059669;">758,419</div><div class="hs-lbl" style="color:#059669;">C24 일평균</div></div>
-          <div class="hs-item"><div class="hs-val" style="color:#d97706;">281,606</div><div class="hs-lbl" style="color:#d97706;">SS 일평균</div></div>
+  <!-- 코호트 1: 메타 광고비 4분위 -->
+  <div class="card" style="margin-bottom:16px;">
+    <div style="font-size:16px; font-weight:800; color:#1877F2; margin-bottom:4px;">코호트 ① 메타 광고비 규모별 — 얼마나 써야 낙수효과가 생기나?</div>
+    <div style="font-size:13px; color:#64748b; margin-bottom:20px;">105일을 메타 광고비 기준 4분위로 나눠 다음날 SS 매출 반응 비교</div>
+
+    <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-bottom:20px;">
+      <!-- Q1 -->
+      <div style="background:#f8fafc; border-radius:12px; padding:18px; border-top:3px solid #cbd5e1; text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:#64748b; margin-bottom:4px;">Q1 · 극소 (n=27)</div>
+        <div style="font-size:12px; color:#94a3b8; margin-bottom:10px;">0 ~ 15만원</div>
+        <div style="font-size:26px; font-weight:900; color:#94a3b8; margin-bottom:2px;">218,266</div>
+        <div style="font-size:11px; color:#94a3b8; margin-bottom:8px;">다음날 SS 평균</div>
+        <div style="background:#f1f5f9; border-radius:6px; padding:6px; font-size:12px;">
+          <span style="color:#64748b;">lag r = </span><span style="font-weight:800; color:#ef4444;">-0.216</span>
         </div>
-        <div class="hack-note">SS 32,900원 구간으로 C24 집중. 안정적 광고 집행 중.</div>
+        <div style="margin-top:10px; font-size:11px; color:#94a3b8; line-height:1.6;">낙수효과 없음<br>C24도 낮음</div>
       </div>
-      <div class="hack-card hack-during">
-        <h4>해킹 중 (3/26~3/30) · 5일 — 광고 강제 중단</h4>
-        <div class="hack-stat">
-          <div class="hs-item"><div class="hs-val">71,677</div><div class="hs-lbl" style="color:#dc2626;">메타 일평균</div></div>
-          <div class="hs-item"><div class="hs-val">335,940</div><div class="hs-lbl" style="color:#dc2626;">C24 일평균 ↓</div></div>
-          <div class="hs-item"><div class="hs-val highlight">450,380</div><div class="hs-lbl" style="color:#059669;">SS 일평균 ↑ 오히려 증가!</div></div>
+      <!-- Q2 -->
+      <div style="background:#fffbeb; border-radius:12px; padding:18px; border-top:3px solid #f59e0b; text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:#92400e; margin-bottom:4px;">Q2 · 소 (n=26)</div>
+        <div style="font-size:12px; color:#d97706; margin-bottom:10px;">15 ~ 26만원</div>
+        <div style="font-size:26px; font-weight:900; color:#d97706; margin-bottom:2px;">315,869</div>
+        <div style="font-size:11px; color:#d97706; margin-bottom:8px;">다음날 SS 평균</div>
+        <div style="background:#fef3c7; border-radius:6px; padding:6px; font-size:12px;">
+          <span style="color:#92400e;">lag r = </span><span style="font-weight:800; color:#d97706;">0.095</span>
         </div>
-        <div class="hack-note"><b>3/25 메타 70만원의 낙수효과.</b> 광고 중단 직후 SS 450,380원/일로 상승 — 전날 광고가 다음날 터진 케이스. C24는 메타 중단과 즉각 하락, SS는 하루 늦게 반응하는 패턴이 그대로 드러남.</div>
+        <div style="margin-top:10px; font-size:11px; color:#92400e; line-height:1.6;">낙수 미약<br>Q1 대비 SS +45%</div>
       </div>
-      <div class="hack-card hack-after">
-        <h4>해킹 후 (3/31~4/5) · 6일 — 광고 재개</h4>
-        <div class="hack-stat">
-          <div class="hs-item"><div class="hs-val" style="color:#1877F2;">582,060</div><div class="hs-lbl" style="color:#1877F2;">메타 일평균</div></div>
-          <div class="hs-item"><div class="hs-val" style="color:#059669;">1,237,183</div><div class="hs-lbl" style="color:#059669;">C24 일평균 ↑↑</div></div>
-          <div class="hs-item"><div class="hs-val" style="color:#d97706;">242,633</div><div class="hs-lbl" style="color:#d97706;">SS 일평균</div></div>
+      <!-- Q3 -->
+      <div style="background:#eff6ff; border-radius:12px; padding:18px; border-top:3px solid #3b82f6; text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:#1e40af; margin-bottom:4px;">Q3 · 중 (n=25)</div>
+        <div style="font-size:12px; color:#3b82f6; margin-bottom:10px;">26 ~ 39만원</div>
+        <div style="font-size:26px; font-weight:900; color:#3b82f6; margin-bottom:2px;">283,032</div>
+        <div style="font-size:11px; color:#3b82f6; margin-bottom:8px;">다음날 SS 평균</div>
+        <div style="background:#dbeafe; border-radius:6px; padding:6px; font-size:12px;">
+          <span style="color:#1e40af;">lag r = </span><span style="font-weight:800; color:#1877F2;">0.296</span>
         </div>
-        <div class="hack-note">광고 재개 후 폭발적 투자(58만원/일). C24 급등(123만원/일). SS 낮음 — 여전히 SS 32,900원이라 C24로 집중.</div>
+        <div style="margin-top:10px; font-size:11px; color:#1e40af; line-height:1.6;">낙수 시작<br>중간 효율 구간</div>
+      </div>
+      <!-- Q4 -->
+      <div style="background:#f0fdf4; border-radius:12px; padding:18px; border-top:3px solid #22c55e; text-align:center;">
+        <div style="font-size:11px; font-weight:700; color:#14532d; margin-bottom:4px;">Q4 · 대 (n=26)</div>
+        <div style="font-size:12px; color:#059669; margin-bottom:10px;">39만원 이상</div>
+        <div style="font-size:26px; font-weight:900; color:#059669; margin-bottom:2px;">416,711</div>
+        <div style="font-size:11px; color:#059669; margin-bottom:8px;">다음날 SS 평균</div>
+        <div style="background:#dcfce7; border-radius:6px; padding:6px; font-size:12px;">
+          <span style="color:#14532d;">lag r = </span><span style="font-weight:800; color:#059669;">0.478</span>
+        </div>
+        <div style="margin-top:10px; font-size:11px; color:#14532d; line-height:1.6;">낙수 가장 강함<br>C24도 95.9만원</div>
       </div>
     </div>
-    <div class="insight insight-red">
-      <b>낙수효과 실증 케이스:</b> 해킹 기간(3/26~3/30) SS 450,380원/일은 데이터 이상이 아니라 3/25 메타 70만원 집행의 다음날 낙수효과다. C24는 메타 중단과 동시에 즉각 급감 → <b>메타-C24 직접 연결</b> 확인. SS는 하루 뒤 반응 → <b>메타-SS 시차 낙수</b> 확인. 같은 기간에 두 패턴이 동시에 관찰된 것.
+
+    <!-- 막대 시각화 -->
+    <div style="margin-bottom:14px;">
+      <div style="font-size:12px; font-weight:700; color:#374151; margin-bottom:8px;">메타 광고비 규모 → 다음날 SS 매출 반응</div>
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:80px; font-size:12px; color:#94a3b8; text-align:right;">Q1 극소</div>
+          <div style="flex:1; background:#f1f5f9; border-radius:4px; height:24px; overflow:hidden;">
+            <div style="width:52%; height:100%; background:#94a3b8; border-radius:4px; display:flex; align-items:center; padding-left:8px;">
+              <span style="font-size:11px; color:#fff; font-weight:700;">218,266원</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:80px; font-size:12px; color:#d97706; text-align:right;">Q2 소</div>
+          <div style="flex:1; background:#f1f5f9; border-radius:4px; height:24px; overflow:hidden;">
+            <div style="width:76%; height:100%; background:#f59e0b; border-radius:4px; display:flex; align-items:center; padding-left:8px;">
+              <span style="font-size:11px; color:#fff; font-weight:700;">315,869원</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:80px; font-size:12px; color:#3b82f6; text-align:right;">Q3 중</div>
+          <div style="flex:1; background:#f1f5f9; border-radius:4px; height:24px; overflow:hidden;">
+            <div style="width:68%; height:100%; background:#3b82f6; border-radius:4px; display:flex; align-items:center; padding-left:8px;">
+              <span style="font-size:11px; color:#fff; font-weight:700;">283,032원</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:80px; font-size:12px; color:#059669; text-align:right;">Q4 대</div>
+          <div style="flex:1; background:#f1f5f9; border-radius:4px; height:24px; overflow:hidden;">
+            <div style="width:100%; height:100%; background:#059669; border-radius:4px; display:flex; align-items:center; padding-left:8px;">
+              <span style="font-size:11px; color:#fff; font-weight:700;">416,711원 ★</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="insight insight-blue" style="margin-bottom:8px;">
+      <b>메타 39만원 이상(Q4)에서 낙수효과 lag r=0.478로 가장 강함.</b> Q1(0~15만원)에서는 lag r=-0.216으로 낙수효과 없음. 다음날 SS 매출도 Q4(41.7만원)가 Q1(21.8만원)의 1.9배. <b>메타 최소 26만원 이상은 집행해야 낙수효과가 작동하기 시작한다.</b>
+    </div>
+    <div class="insight insight-yellow" style="margin-bottom:0;">
+      <b>Q3(26~39만원)보다 Q2(15~26만원)의 SS가 더 높은 이유:</b> Q3 구간에는 SS 비쌈(32,900원) 일이 많아서 낙수가 C24로 쏠림. 메타 규모뿐 아니라 SS 가격 조건이 함께 맞아야 낙수효과가 SS에 실제로 반영된다.
+    </div>
+  </div>
+
+  <!-- 코호트 2: 요일별 -->
+  <div class="card" style="margin-bottom:16px;">
+    <div style="font-size:16px; font-weight:800; color:#7c3aed; margin-bottom:4px;">코호트 ② 요일별 — 언제 집행해야 ROAS가 높은가?</div>
+    <div style="font-size:13px; color:#64748b; margin-bottom:18px;">각 요일(n=15일씩) 메타·C24·SS 일평균 및 통합 ROAS 비교</div>
+
+    <div style="overflow-x:auto; margin-bottom:16px;">
+      <table>
+        <tr>
+          <th>요일</th>
+          <th>메타 일평균</th>
+          <th>C24 일평균</th>
+          <th>SS 일평균</th>
+          <th>통합 ROAS</th>
+          <th>평가</th>
+        </tr>
+        <tr>
+          <td><b>월요일</b></td><td>300,006</td><td>532,937</td><td>320,680</td>
+          <td class="mid">2.85배</td>
+          <td style="font-size:12px; color:#64748b;">보통</td>
+        </tr>
+        <tr>
+          <td><b>화요일</b></td><td>316,522</td><td>608,066</td><td>336,440</td>
+          <td class="mid">2.98배</td>
+          <td style="font-size:12px; color:#64748b;">보통</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td><b style="color:#059669;">수요일 ★</b></td><td>339,969</td><td>705,625</td><td>365,786</td>
+          <td class="hi">3.15배</td>
+          <td style="font-size:12px; color:#059669; font-weight:700;">최고 ROAS</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td><b style="color:#059669;">목요일 ★</b></td><td>290,375</td><td>633,185</td><td>277,973</td>
+          <td class="hi">3.14배</td>
+          <td style="font-size:12px; color:#059669; font-weight:700;">2위</td>
+        </tr>
+        <tr>
+          <td><b>금요일</b></td><td>271,001</td><td>500,291</td><td>308,767</td>
+          <td class="mid">2.99배</td>
+          <td style="font-size:12px; color:#64748b;">보통</td>
+        </tr>
+        <tr style="background:#fef2f2;">
+          <td><b style="color:#dc2626;">토요일 ↓</b></td><td>274,728</td><td>535,973</td><td>242,320</td>
+          <td class="lo">2.83배</td>
+          <td style="font-size:12px; color:#dc2626; font-weight:700;">최저</td>
+        </tr>
+        <tr>
+          <td><b>일요일</b></td><td>308,443</td><td>598,256</td><td>308,953</td>
+          <td class="mid">2.94배</td>
+          <td style="font-size:12px; color:#64748b;">평균</td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="insight insight-purple" style="margin-bottom:8px;">
+      <b>수요일·목요일 ROAS 3.15배·3.14배로 주중 최고.</b> 토요일 2.83배로 최저. 주중(수·목)에 메타를 집중 집행하고 주말은 줄이는 요일별 예산 분배 전략을 고려할 수 있다. 단, 데이터가 각 요일 15일씩으로 샘플이 작아 이벤트 변수가 섞여 있음에 유의.
+    </div>
+    <div class="insight insight-yellow" style="margin-bottom:0;">
+      <b>토요일 SS 242,320원(최저):</b> 주말 구매 행동 특성상 SS보다 즉각 구매(C24) 비중이 높거나, 주말 광고 노출 후 행동 전환이 다음 주초에 발생하는 패턴일 가능성. 추가 검증 필요.
+    </div>
+  </div>
+
+  <!-- 코호트 3: 이벤트x가격 -->
+  <div class="card">
+    <div style="font-size:16px; font-weight:800; color:#059669; margin-bottom:4px;">코호트 ③ 이벤트 × 가격 조건별 — 어떤 조합이 가장 효율적인가?</div>
+    <div style="font-size:13px; color:#64748b; margin-bottom:18px;">6개 이벤트 구간의 메타 투입 대비 SS 낙수효과(lag r) 및 통합 ROAS 비교</div>
+
+    <div style="overflow-x:auto; margin-bottom:16px;">
+      <table>
+        <tr>
+          <th>이벤트</th>
+          <th>SS 가격</th>
+          <th>메타 일평균</th>
+          <th>SS 일평균</th>
+          <th>SS 낙수 lag r</th>
+          <th>통합 ROAS</th>
+          <th>판정</th>
+        </tr>
+        <tr>
+          <td class="td-event">새해 이벤트</td>
+          <td>29,900</td><td>285,551</td><td>377,066</td>
+          <td>0.228</td><td class="mid">2.89배</td>
+          <td style="font-size:12px; color:#64748b;">낙수 약함</td>
+        </tr>
+        <tr>
+          <td class="td-event">신제품 이벤트</td>
+          <td>29,900</td><td>356,518</td><td>237,813</td>
+          <td>0.234</td><td class="mid">2.31배</td>
+          <td style="font-size:12px; color:#dc2626;">낙수 약·ROAS 최저</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td class="td-event" style="color:#059669; font-weight:800;">설날 이벤트 ★</td>
+          <td>29,900</td><td>196,097</td><td>247,361</td>
+          <td style="color:#059669; font-weight:900;">0.684</td><td class="hi">2.88배</td>
+          <td style="font-size:12px; color:#059669; font-weight:700;">낙수 최강</td>
+        </tr>
+        <tr style="background:#fffbeb;">
+          <td class="td-event" style="color:#d97706; font-weight:800;">급찐급빠 ★★</td>
+          <td>29,900</td><td>174,292</td><td>205,721</td>
+          <td>0.331</td><td class="hi" style="color:#059669;">3.75배</td>
+          <td style="font-size:12px; color:#d97706; font-weight:700;">ROAS 최고</td>
+        </tr>
+        <tr style="background:#fef2f2;">
+          <td class="td-event">이벤트 없음</td>
+          <td style="color:#dc2626; font-weight:700;">32,900</td><td>311,914</td><td>304,200</td>
+          <td style="color:#dc2626;">-0.124</td><td class="hi">3.50배</td>
+          <td style="font-size:12px; color:#dc2626;">낙수 없음(SS 비쌈)</td>
+        </tr>
+        <tr style="background:#f0fdf4;">
+          <td class="td-event">생일파티</td>
+          <td style="color:#059669; font-weight:700;">27,900</td><td>604,818</td><td>577,131</td>
+          <td style="color:#dc2626;">-0.429</td><td class="lo">2.72배</td>
+          <td style="font-size:12px; color:#059669; font-weight:700;">SS 절대량 최대</td>
+        </tr>
+      </table>
+    </div>
+
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+      <div class="insight insight-green" style="margin-bottom:0;">
+        <b>낙수효과 최적 조합: 설날 이벤트형</b><br>
+        낮은 메타(19.6만원/일) + 명절 감성 이벤트 + SS=자사몰 동일가격 → lag r=0.684. 적은 광고비로 SS 낙수를 극대화. <b>다음 전략: 추석·크리스마스에 동일 패턴 적용</b>
+      </div>
+      <div class="insight insight-yellow" style="margin-bottom:0;">
+        <b>ROAS 최적 조합: 급찐급빠 컨셉형</b><br>
+        가장 낮은 메타(17.4만원/일) + 강한 메시지 컨셉 → 통합 ROAS 3.75배. 광고비를 늘린다고 ROAS가 오르지 않는다. <b>메시지 효율 → 예산 확대 순서가 맞다.</b>
+      </div>
     </div>
   </div>
 
