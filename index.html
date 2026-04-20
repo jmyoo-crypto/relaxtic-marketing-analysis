@@ -178,6 +178,16 @@ tr:hover td { background: #fafafa; }
   table { font-size: 11.5px; }
   td, th { padding: 8px 8px; }
 }
+.lag-toggle-btn {
+  font-family: inherit; font-size: 12px; font-weight: 700;
+  padding: 6px 14px; border-radius: 20px; border: 1.5px solid #e5e7eb;
+  background: #fff; color: #64748b; cursor: pointer; transition: all .15s;
+}
+.lag-toggle-btn:hover { border-color: #1a1a2e; color: #1a1a2e; }
+.lag-toggle-btn.active { background: #1a1a2e; color: #fff; border-color: #1a1a2e; }
+.lag-zone-card { cursor: pointer; transition: box-shadow .15s, border-color .15s; }
+.lag-zone-card:hover { box-shadow: 0 0 0 2px #1a1a2e22; }
+.lag-zone-card.active { box-shadow: 0 0 0 2.5px #1a1a2e; }
 </style>
 </head>
 <body>
@@ -687,10 +697,19 @@ tr:hover td { background: #fafafa; }
     </div>
     <div class="chart-wrap" style="height:340px;"><canvas id="chartLagFull"></canvas></div>
 
-    <div style="margin-top:18px; display:grid; grid-template-columns:repeat(2,1fr); gap:12px;">
+    <!-- 구간 토글 버튼 -->
+    <div style="display:flex; gap:8px; flex-wrap:wrap; margin:16px 0 8px;">
+      <button class="lag-toggle-btn active" data-zone="all" onclick="filterLagChart('all')">전체 보기</button>
+      <button class="lag-toggle-btn" data-zone="z1" onclick="filterLagChart('z1')">① 1/14~1/19 새해</button>
+      <button class="lag-toggle-btn" data-zone="z2" onclick="filterLagChart('z2')">② 2/5~2/9 설날</button>
+      <button class="lag-toggle-btn" data-zone="z3" onclick="filterLagChart('z3')">③ 3/24~3/26 급등</button>
+      <button class="lag-toggle-btn" data-zone="z4" onclick="filterLagChart('z4')">④ 4/6~4/18 생일파티</button>
+    </div>
+
+    <div style="margin-top:4px; display:grid; grid-template-columns:repeat(2,1fr); gap:12px;">
 
       <!-- 구간 ① -->
-      <div style="border-radius:12px; background:#fffbeb; border:1.5px solid #f59e0b; padding:16px 18px;">
+      <div class="lag-zone-card" data-zone="z1" onclick="filterLagChart('z1')" style="border-radius:12px; background:#fffbeb; border:1.5px solid #f59e0b; padding:16px 18px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
           <div style="font-weight:900; color:#92400e; font-size:14px;">① 1/14~1/19</div>
           <span style="background:#fef3c7; color:#92400e; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px;">새해 이벤트 → 신제품 이벤트 전환</span>
@@ -718,7 +737,7 @@ tr:hover td { background: #fafafa; }
       </div>
 
       <!-- 구간 ② -->
-      <div style="border-radius:12px; background:#faf5ff; border:1.5px solid #c084fc; padding:16px 18px;">
+      <div class="lag-zone-card" data-zone="z2" onclick="filterLagChart('z2')" style="border-radius:12px; background:#faf5ff; border:1.5px solid #c084fc; padding:16px 18px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
           <div style="font-weight:900; color:#5b21b6; font-size:14px;">② 2/5~2/9</div>
           <span style="background:#ede9fe; color:#5b21b6; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px;">설날 이벤트 — 낙수효과 전 구간 최강</span>
@@ -746,7 +765,7 @@ tr:hover td { background: #fafafa; }
       </div>
 
       <!-- 구간 ③ -->
-      <div style="border-radius:12px; background:#ecfdf5; border:1.5px solid #6ee7b7; padding:16px 18px;">
+      <div class="lag-zone-card" data-zone="z3" onclick="filterLagChart('z3')" style="border-radius:12px; background:#ecfdf5; border:1.5px solid #6ee7b7; padding:16px 18px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
           <div style="font-weight:900; color:#065f46; font-size:14px;">③ 3/24~3/26</div>
           <span style="background:#d1fae5; color:#065f46; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px;">이벤트 없음, SS 비쌈(32,900원) — 예외 케이스</span>
@@ -774,7 +793,7 @@ tr:hover td { background: #fafafa; }
       </div>
 
       <!-- 구간 ④ -->
-      <div style="border-radius:12px; background:#f0fdf4; border:2px solid #4ade80; padding:16px 18px;">
+      <div class="lag-zone-card" data-zone="z4" onclick="filterLagChart('z4')" style="border-radius:12px; background:#f0fdf4; border:2px solid #4ade80; padding:16px 18px;">
         <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:8px;">
           <div style="font-weight:900; color:#14532d; font-size:14px;">④ 4/6~4/14</div>
           <span style="background:#dcfce7; color:#14532d; font-size:10px; font-weight:800; padding:2px 8px; border-radius:20px;">생일파티 — SS 저렴(27,900원) + SS 폭등</span>
@@ -1309,7 +1328,7 @@ const lagSSNext = [
   557100,667800,556200,635900,695700,715320,640800,777600,690900
 ];
 
-new Chart(document.getElementById('chartLagFull'), {
+const lagFullChart = new Chart(document.getElementById('chartLagFull'), {
   type: 'bar',
   data: {
     labels: lagLabels,
@@ -1344,6 +1363,34 @@ new Chart(document.getElementById('chartLagFull'), {
     }
   }
 });
+
+// 원본 데이터 보존
+const _lagLabels = lagLabels.slice();
+const _lagMeta   = lagMeta.slice();
+const _lagSSNext = lagSSNext.slice();
+
+const lagZones = {
+  all: { start: 0,   end: _lagLabels.length - 1 },
+  z1:  { start: 6,   end: 25  },
+  z2:  { start: 28,  end: 46  },
+  z3:  { start: 75,  end: 91  },
+  z4:  { start: 88,  end: 107 },
+};
+
+function filterLagChart(zoneKey) {
+  const z = lagZones[zoneKey];
+  lagFullChart.data.labels = _lagLabels.slice(z.start, z.end + 1);
+  lagFullChart.data.datasets[0].data = _lagMeta.slice(z.start, z.end + 1);
+  lagFullChart.data.datasets[1].data = _lagSSNext.slice(z.start, z.end + 1);
+  const showAnn = zoneKey === 'all';
+  Object.values(lagFullChart.options.plugins.annotation.annotations)
+    .forEach(a => { a.display = showAnn; });
+  lagFullChart.update();
+  document.querySelectorAll('.lag-toggle-btn').forEach(b =>
+    b.classList.toggle('active', b.dataset.zone === zoneKey));
+  document.querySelectorAll('.lag-zone-card').forEach(c =>
+    c.classList.toggle('active', c.dataset.zone === zoneKey));
+}
 
 const zoneLabels = [
   "①1/14","1/15","1/16","1/17","1/18","1/19","",
